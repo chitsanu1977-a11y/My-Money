@@ -2,10 +2,11 @@
   "name": "เป๋าตังค์พารวย",
   "short_name": "เป๋าตังค์พารวย",
   "description": "แอปบันทึกรายรับรายจ่ายส่วนตัว",
-  "start_url": "/",
+  "start_url": "/My-Money/",
+  "scope": "/My-Money/",
   "display": "standalone",
-  "background_color": "#f9f5f0",
-  "theme_color": "#f9f5f0",
+  "background_color": "#f0f4ff",
+  "theme_color": "#3b6ef8",
   "orientation": "portrait",
   "icons": [
     {
