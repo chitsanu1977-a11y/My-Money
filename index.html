@@ -231,6 +231,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <button class="tab" data-page="history">รายการ</button>
     <button class="tab" data-page="wallets">กระเป๋า</button>
     <button class="tab" data-page="debts">หนี้สิน</button>
+    <button class="tab" data-page="cats">หมวดหมู่</button>
     <button class="tab" data-page="analytics">วิเคราะห์</button>
   </div>
 </div>
@@ -339,6 +340,16 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
   <div class="card"><div style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text)">หมวดรายจ่าย</div><div id="anaExpCat"></div></div>
   <div class="card"><div style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text)">หมวดรายรับ</div><div id="anaIncCat"></div></div>
+</div>
+
+<!-- CATEGORIES -->
+<div id="pg-cats" class="page">
+  <div class="ttog" id="catPageTog" style="margin-bottom:16px">
+    <button class="tbtn t-exp active" data-cpage="expense">❤️ รายจ่าย</button>
+    <button class="tbtn t-inc" data-cpage="income">💚 รายรับ</button>
+  </div>
+  <div id="catPageList"></div>
+  <button class="btn btn-p" id="addCatBtn">+ เพิ่มหมวดหมู่</button>
 </div>
 
 <!-- FAB -->
@@ -490,18 +501,48 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
+<!-- MODAL: ADD/EDIT CATEGORY -->
+<div class="moverlay" id="mCat">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="mCatTitle">เพิ่มหมวดหมู่</div>
+    <div class="fgrp">
+      <label class="flbl">ประเภท</label>
+      <div class="ttog" id="catTypeTog">
+        <button class="tbtn t-exp active" data-ctype="expense">❤️ รายจ่าย</button>
+        <button class="tbtn t-inc" data-ctype="income">💚 รายรับ</button>
+      </div>
+    </div>
+    <div class="fgrp">
+      <label class="flbl">ชื่อหมวดหมู่</label>
+      <input class="finp" type="text" id="catName" placeholder="เช่น เล่นดนตรี, ร้านสะดวกซื้อ">
+    </div>
+    <div class="fgrp">
+      <label class="flbl">เลือก Emoji</label>
+      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
+        <div id="selEmojiPreview" style="width:48px;height:48px;border-radius:12px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">🏷️</div>
+        <input class="finp" type="text" id="catEmoji" placeholder="พิมพ์ emoji โดยตรง หรือเลือกด้านล่าง" style="flex:1" maxlength="4">
+      </div>
+      <div id="emojiPicker" style="display:flex;flex-wrap:wrap;gap:6px;max-height:200px;overflow-y:auto;padding:4px 0"></div>
+    </div>
+    <button class="btn btn-p" id="saveCatBtn">💾 บันทึก</button>
+    <button class="btn btn-s" id="closeCatBtn">ยกเลิก</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────
-const CATS = {
+const DEFAULT_CATS = {
   expense:[
     {id:'food',e:'🍜',n:'อาหาร'},{id:'transport',e:'🚗',n:'เดินทาง'},
     {id:'shop',e:'🛍️',n:'ช้อปปิ้ง'},{id:'health',e:'💊',n:'สุขภาพ'},
     {id:'home',e:'🏠',n:'บ้าน'},{id:'ent',e:'🎬',n:'บันเทิง'},
     {id:'edu',e:'📚',n:'การศึกษา'},{id:'util',e:'💡',n:'ค่าน้ำไฟ'},
     {id:'beauty',e:'💄',n:'ความงาม'},{id:'pet',e:'🐾',n:'สัตว์เลี้ยง'},
-    {id:'ins',e:'🛡️',n:'ประกัน'},{id:'other_e',e:'📦',n:'อื่นๆ'},
+    {id:'ins',e:'🛡️',n:'ประกัน'},{id:'music',e:'🎸',n:'เล่นดนตรี'},
+    {id:'conv',e:'🏪',n:'ร้านสะดวกซื้อ'},{id:'other_e',e:'📦',n:'อื่นๆ'},
   ],
   income:[
     {id:'salary',e:'💼',n:'เงินเดือน'},{id:'bonus',e:'🎁',n:'โบนัส'},
@@ -510,6 +551,27 @@ const CATS = {
     {id:'gift',e:'🎀',n:'ของขวัญ'},{id:'other_i',e:'✨',n:'อื่นๆ'},
   ]
 };
+let CATS = {expense:[...DEFAULT_CATS.expense], income:[...DEFAULT_CATS.income]};
+
+const EMOJI_LIST = [
+  '🍜','🍱','🍔','🍕','🍣','🥗','☕','🧋','🍺','🎂',
+  '🚗','🚕','🚌','✈️','🚂','⛽','🛵','🚲','🚁','🛺',
+  '🛍️','👗','👟','💍','🧴','🪥','🛒','🏷️','🎁','🧸',
+  '💊','🏥','🦷','👓','💉','🧘','🏋️','🩺','🧪','❤️‍🩹',
+  '🏠','🛋️','💡','🔧','🪣','🌿','🏡','🪟','🚿','🛁',
+  '🎬','🎮','🎯','🎳','🎰','🎪','🎭','🎨','🎤','🎸',
+  '🎹','🥁','🎻','🎺','🎷','🎵','🎶','🎼','🎧','🎙️',
+  '📚','✏️','📝','🎓','🏫','📐','🔬','💡','📖','🧠',
+  '💄','💅','💈','👒','🧖','🪞','💋','🌸','🌺','💐',
+  '🐾','🐶','🐱','🐰','🐟','🦜','🐾','🌳','🪴','🌻',
+  '🛡️','📋','💰','💳','📊','🏦','💹','🤝','📱','💻',
+  '🏪','🏬','🏢','🏨','🏗️','🏭','🌆','🌇','🏙️','🗼',
+  '💼','💵','💸','🤑','📈','📉','🏆','🎖️','🥇','⭐',
+  '🎀','🎊','🎉','🥳','🪅','🎈','🎆','🎇','✨','🌟',
+  '🍕','🍦','🧁','🥤','🍿','🎪','🎠','🎡','🎢','🎪',
+  '⚽','🏀','🏈','⚾','🎾','🏊','🚴','🧗','🤸','🏄',
+];
+
 const WICONS = {cash:'💵',bank:'🏦',saving:'🐷',credit:'💳',ewallet:'📱'};
 const COLORS = ['#3b6ef8','#38b87a','#e09640','#7c6ef5','#e05c5c','#6eb3f7','#4bb8c4','#e07b9b','#a07050','#7a8a9a'];
 const MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
@@ -528,9 +590,20 @@ function loadDB() {
   if(!Array.isArray(db.wallets)) db.wallets=[];
   if(!Array.isArray(db.transactions)) db.transactions=[];
   if(!Array.isArray(db.debts)) db.debts=[];
+  if(!db.cats) db.cats={expense:[],income:[]};
+  if(!Array.isArray(db.cats.expense)) db.cats.expense=[];
+  if(!Array.isArray(db.cats.income)) db.cats.income=[];
   if(db.wallets.length===0) db.wallets.push({id:mkid(),name:'กระเป๋าหลัก',type:'cash',balance:0,color:'#3b6ef8',created:ts()});
+  mergeCats();
 }
 function saveDB() { localStorage.setItem('ptpr1',JSON.stringify(db)); }
+function mergeCats() {
+  // merge default + custom, custom overrides nothing — just appends unique ids
+  var customE = (db.cats&&db.cats.expense)||[];
+  var customI = (db.cats&&db.cats.income)||[];
+  CATS.expense = DEFAULT_CATS.expense.concat(customE.filter(function(c){return !DEFAULT_CATS.expense.find(function(d){return d.id===c.id;});}));
+  CATS.income  = DEFAULT_CATS.income.concat(customI.filter(function(c){return !DEFAULT_CATS.income.find(function(d){return d.id===c.id;});}));
+}
 function mkid() { return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function ts() { return new Date().toISOString(); }
 function fmt(n) { return '฿'+Math.abs(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2}); }
@@ -550,6 +623,7 @@ function renderAll() {
   renderHistory();
   renderWallets();
   renderDebts();
+  renderCats();
   renderAnalytics();
 }
 
@@ -940,6 +1014,86 @@ function deleteDebt() {
   saveDB(); closeModal('mDebtDetail'); renderDebts(); toast('ลบแล้ว');
 }
 
+// ── CATEGORIES PAGE ──────────────────────────────────────────
+var catPageType = 'expense';
+
+function renderCats() {
+  var list = document.getElementById('catPageList');
+  if(!list) return;
+  var cats = CATS[catPageType];
+  var customIds = ((db.cats&&db.cats[catPageType])||[]).map(function(c){return c.id;});
+  list.innerHTML = cats.map(function(c){
+    var isCustom = customIds.indexOf(c.id) > -1;
+    return '<div class="card" style="display:flex;align-items:center;gap:12px;padding:12px 16px;margin-bottom:8px">'+
+      '<div style="font-size:28px;width:44px;text-align:center">'+c.e+'</div>'+
+      '<div style="flex:1"><div style="font-size:14px;font-weight:500">'+c.n+'</div>'+
+      '<div style="font-size:11px;color:var(--text3)">'+( isCustom?'หมวดที่เพิ่มเอง':'หมวดเริ่มต้น')+'</div></div>'+
+      (isCustom?'<button class="del-btn" data-delcat="'+c.id+'" data-cattype="'+catPageType+'">🗑️</button>':'')+
+      '</div>';
+  }).join('');
+  list.querySelectorAll('[data-delcat]').forEach(function(btn){
+    btn.addEventListener('click', function(){ deleteCat(btn.dataset.delcat, btn.dataset.cattype); });
+  });
+}
+
+var newCatType = 'expense';
+var newCatEmoji = '🏷️';
+
+function openCatModal() {
+  newCatType = catPageType;
+  newCatEmoji = '🏷️';
+  document.getElementById('mCatTitle').textContent = 'เพิ่มหมวดหมู่';
+  document.getElementById('catName').value = '';
+  document.getElementById('catEmoji').value = '';
+  document.getElementById('selEmojiPreview').textContent = '🏷️';
+  // set toggle
+  document.querySelectorAll('#catTypeTog .tbtn').forEach(function(b){
+    b.classList.remove('active');
+    if(b.dataset.ctype===newCatType) b.classList.add('active');
+  });
+  // build emoji grid
+  var picker = document.getElementById('emojiPicker');
+  picker.innerHTML = EMOJI_LIST.map(function(em){
+    return '<div style="width:38px;height:38px;border-radius:8px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:transform .1s" data-em="'+em+'">'+em+'</div>';
+  }).join('');
+  picker.querySelectorAll('[data-em]').forEach(function(el){
+    el.addEventListener('click', function(){
+      newCatEmoji = el.dataset.em;
+      document.getElementById('catEmoji').value = newCatEmoji;
+      document.getElementById('selEmojiPreview').textContent = newCatEmoji;
+      picker.querySelectorAll('[data-em]').forEach(function(e){ e.style.background='var(--bg2)'; e.style.transform=''; });
+      el.style.background = 'var(--accent-bg)';
+      el.style.transform = 'scale(1.2)';
+    });
+  });
+  openModal('mCat');
+}
+
+function saveCat() {
+  var name = document.getElementById('catName').value.trim();
+  var emoji = document.getElementById('catEmoji').value.trim() || newCatEmoji;
+  if(!name){ toast('กรุณาใส่ชื่อหมวดหมู่'); return; }
+  if(!emoji){ toast('กรุณาเลือก Emoji'); return; }
+  if(!db.cats) db.cats={expense:[],income:[]};
+  if(!db.cats[newCatType]) db.cats[newCatType]=[];
+  var id = 'custom_'+mkid();
+  db.cats[newCatType].push({id:id, e:emoji, n:name, custom:true});
+  mergeCats();
+  saveDB();
+  closeModal('mCat');
+  renderCats();
+  toast('เพิ่มหมวดหมู่แล้ว ✓');
+}
+
+function deleteCat(id, type) {
+  if(!confirm('ลบหมวดหมู่นี้?')) return;
+  if(db.cats&&db.cats[type]) db.cats[type] = db.cats[type].filter(function(c){return c.id!==id;});
+  mergeCats();
+  saveDB();
+  renderCats();
+  toast('ลบแล้ว');
+}
+
 // ── MODAL HELPERS ────────────────────────────────────────────
 function openModal(id) {
   var el = document.getElementById(id);
@@ -1028,6 +1182,32 @@ document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('payBtn').addEventListener('click', payDebt);
   document.getElementById('delDebtBtn').addEventListener('click', deleteDebt);
   document.getElementById('closeDebtDetailBtn').addEventListener('click', function(){ closeModal('mDebtDetail'); });
+
+  // category page toggle
+  document.querySelectorAll('[data-cpage]').forEach(function(el){
+    el.addEventListener('click', function(){
+      document.querySelectorAll('[data-cpage]').forEach(function(e){ e.classList.remove('active'); });
+      el.classList.add('active');
+      catPageType = el.dataset.cpage;
+      renderCats();
+    });
+  });
+  document.getElementById('addCatBtn').addEventListener('click', openCatModal);
+
+  // category modal
+  document.querySelectorAll('#catTypeTog .tbtn').forEach(function(el){
+    el.addEventListener('click', function(){
+      document.querySelectorAll('#catTypeTog .tbtn').forEach(function(b){ b.classList.remove('active'); });
+      el.classList.add('active');
+      newCatType = el.dataset.ctype;
+    });
+  });
+  document.getElementById('catEmoji').addEventListener('input', function(){
+    var v = this.value.trim();
+    if(v){ newCatEmoji=v; document.getElementById('selEmojiPreview').textContent=v; }
+  });
+  document.getElementById('saveCatBtn').addEventListener('click', saveCat);
+  document.getElementById('closeCatBtn').addEventListener('click', function(){ closeModal('mCat'); });
 
   // close modal on overlay tap
   document.querySelectorAll('.moverlay').forEach(function(el){
