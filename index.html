@@ -152,7 +152,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
 /* MODAL OVERLAY */
 .moverlay{position:fixed;inset:0;background:rgba(26,35,64,.45);z-index:400;display:none;align-items:flex-end;justify-content:center}
-.moverlay.open{display:flex}
 .modal{background:var(--bg);border-radius:var(--r) var(--r) 0 0;width:100%;max-width:480px;padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:slideup .28s ease}
 @keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .mhandle{width:36px;height:4px;background:var(--sand);border-radius:2px;margin:0 auto 20px}
@@ -940,8 +939,14 @@ function deleteDebt() {
 }
 
 // ── MODAL HELPERS ────────────────────────────────────────────
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openModal(id) {
+  var el = document.getElementById(id);
+  if(el) el.style.display = 'flex';
+}
+function closeModal(id) {
+  var el = document.getElementById(id);
+  if(el) el.style.display = 'none';
+}
 
 // ── TOAST ────────────────────────────────────────────────────
 function toast(msg) {
