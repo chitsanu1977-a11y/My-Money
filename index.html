@@ -647,13 +647,41 @@
     <div class="month-label" id="monthLabel"></div>
     <button class="month-nav-btn" onclick="changeMonth(1)">›</button>
   </div>
-  <div class="filter-bar">
-    <button class="filter-pill active" onclick="setFilter(this,'all')">ทั้งหมด</button>
-    <button class="filter-pill" onclick="setFilter(this,'income')">รายรับ</button>
-    <button class="filter-pill" onclick="setFilter(this,'expense')">รายจ่าย</button>
-    <button class="filter-pill" onclick="setFilter(this,'transfer')">โอน</button>
-    <button class="filter-pill" onclick="setFilter(this,'debt')">หนี้</button>
+
+  <!-- สรุปยอดเดือน -->
+  <div class="stat-grid" style="margin-bottom:12px">
+    <div class="stat-item" style="background:var(--green-bg)">
+      <div class="stat-label" style="color:var(--green-dark)">รายรับ</div>
+      <div class="stat-value" style="color:var(--green-dark);font-size:16px" id="histIncome">฿0</div>
+    </div>
+    <div class="stat-item" style="background:var(--red-bg)">
+      <div class="stat-label" style="color:var(--red-dark)">รายจ่าย</div>
+      <div class="stat-value" style="color:var(--red-dark);font-size:16px" id="histExpense">฿0</div>
+    </div>
   </div>
+
+  <!-- Search -->
+  <div style="position:relative;margin-bottom:10px">
+    <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px">🔍</span>
+    <input class="form-input" type="text" id="histSearch" placeholder="ค้นหารายการ..." style="padding-left:36px" oninput="renderHistory()">
+  </div>
+
+  <!-- Filter + Sort -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <div class="filter-bar" style="flex:1;margin-bottom:0">
+      <button class="filter-pill active" onclick="setFilter(this,'all')">ทั้งหมด</button>
+      <button class="filter-pill" onclick="setFilter(this,'income')">รายรับ</button>
+      <button class="filter-pill" onclick="setFilter(this,'expense')">รายจ่าย</button>
+      <button class="filter-pill" onclick="setFilter(this,'transfer')">โอน</button>
+    </div>
+    <select class="form-input form-select" id="histSort" onchange="renderHistory()" style="width:auto;padding:6px 10px;font-size:13px;flex-shrink:0">
+      <option value="date_desc">ล่าสุด</option>
+      <option value="date_asc">เก่าสุด</option>
+      <option value="amount_desc">มากสุด</option>
+      <option value="amount_asc">น้อยสุด</option>
+    </select>
+  </div>
+
   <div class="card" style="padding: 4px 18px;">
     <div id="historyList"></div>
   </div>
@@ -886,6 +914,7 @@
   <div class="modal">
     <div class="modal-handle"></div>
     <div id="txDetailContent"></div>
+    <button class="btn btn-secondary" onclick="editTx(currentTxId)" style="margin-top:8px">✏️ แก้ไข</button>
     <button class="btn btn-danger" onclick="deleteTx()" style="margin-top:8px">ลบรายการ</button>
     <button class="btn btn-secondary" onclick="closeModal('txDetailModal')" style="margin-top:8px">ปิด</button>
   </div>
@@ -1104,11 +1133,65 @@ function renderHistory() {
     const d = new Date(t.date);
     return d.getMonth()===currentMonth && d.getFullYear()===currentYear;
   });
+
+  // summary
+  const inc = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const exp = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const histIncome = document.getElementById('histIncome');
+  const histExpense = document.getElementById('histExpense');
+  if(histIncome) histIncome.textContent = fmt(inc);
+  if(histExpense) histExpense.textContent = fmt(exp);
+
+  // filter type
   if(historyFilter!=='all') txs = txs.filter(t=>t.type===historyFilter);
-  txs = txs.sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+  // search
+  const q = (document.getElementById('histSearch')?.value||'').trim().toLowerCase();
+  if(q) txs = txs.filter(t=>{
+    const cat = findCat(t.category, t.type);
+    return (t.note||'').toLowerCase().includes(q) || (cat?.name||'').toLowerCase().includes(q);
+  });
+
+  // sort
+  const sort = document.getElementById('histSort')?.value || 'date_desc';
+  if(sort==='date_desc') txs.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  else if(sort==='date_asc') txs.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  else if(sort==='amount_desc') txs.sort((a,b)=>b.amount-a.amount);
+  else if(sort==='amount_asc') txs.sort((a,b)=>a.amount-b.amount);
 
   const el = document.getElementById('historyList');
-  el.innerHTML = txs.length ? txs.map(t=>txRow(t)).join('') : '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">ไม่มีรายการในเดือนนี้</div></div>';
+  if(!txs.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">' + (q?'ไม่พบรายการที่ค้นหา':'ไม่มีรายการในเดือนนี้') + '</div></div>';
+    return;
+  }
+
+  // group by date
+  const grouped = {};
+  txs.forEach(t=>{
+    const key = t.date;
+    if(!grouped[key]) grouped[key]=[];
+    grouped[key].push(t);
+  });
+  const dateKeys = Object.keys(grouped);
+  if(sort==='date_asc') dateKeys.sort((a,b)=>a.localeCompare(b));
+  else if(sort==='date_desc') dateKeys.sort((a,b)=>b.localeCompare(a));
+  // amount sorts don't group by date, just flat list
+  if(sort.startsWith('amount')) {
+    el.innerHTML = txs.map(t=>txRow(t)).join('');
+    return;
+  }
+
+  el.innerHTML = dateKeys.map(date=>{
+    const d = new Date(date);
+    const label = d.toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});
+    const dayTotal = grouped[date].reduce((s,t)=>t.type==='income'?s+t.amount:t.type==='expense'?s-t.amount:s,0);
+    const daySign = dayTotal>=0?'+':'';
+    const dayColor = dayTotal>=0?'var(--green-dark)':'var(--red-dark)';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px;border-top:1px solid var(--cream2);margin-top:4px">
+      <div style="font-size:12px;font-weight:600;color:var(--text2)">${label}</div>
+      <div style="font-size:12px;font-weight:600;color:${dayColor}">${daySign}${fmt(Math.abs(dayTotal))}</div>
+    </div>${grouped[date].map(t=>txRow(t)).join('')}`;
+  }).join('');
 }
 
 // === WALLETS ===
@@ -1430,7 +1513,22 @@ function openTxDetail(id) {
     </div>`;
   openModal('txDetailModal');
 }
-function deleteTx() {
+function editTx(id) {
+  const t = data.transactions.find(t=>t.id===id);
+  if(!t) return;
+  closeModal('txDetailModal');
+  editTxId = id;
+  document.getElementById('txModalTitle').textContent = 'แก้ไขรายการ';
+  document.getElementById('txAmount').value = t.amount;
+  document.getElementById('txNote').value = t.note||'';
+  document.getElementById('txDate').value = t.date;
+  selectedWalletId = t.walletId;
+  selectedToWalletId = t.toWalletId||null;
+  selectedCat = t.category||null;
+  setTxType(t.type);
+  openModal('addTxModal');
+}
+
   if(!currentTxId) return;
   const t = data.transactions.find(t=>t.id===currentTxId);
   if(t) { reverseWallet(t); data.transactions = data.transactions.filter(x=>x.id!==currentTxId); }
