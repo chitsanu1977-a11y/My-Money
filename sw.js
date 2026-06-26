@@ -1,8 +1,12 @@
-const CACHE = 'moneyapp-v2';
-const ASSETS = ['/', '/index.html', '/manifest.json'];
+const CACHE = 'ptpr-v1';
+const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+  e.waitUntil(
+    caches.open(CACHE).then(cache =>
+      Promise.allSettled(ASSETS.map(url => cache.add(url)))
+    )
+  );
   self.skipWaiting();
 });
 
