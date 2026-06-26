@@ -391,6 +391,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <div class="fgrp">
       <label class="flbl">รายละเอียด</label>
       <input class="finp" type="text" id="txNote" placeholder="เช่น ข้าวกลางวัน, เงินเดือน">
+      <div id="noteSuggestions" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
     </div>
     <div class="fgrp">
       <label class="flbl">วันที่</label>
@@ -469,6 +470,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       <label class="flbl">วันครบกำหนด (ถ้ามี)</label>
       <input class="finp" type="date" id="dDue">
     </div>
+    <div class="fgrp">
+      <label class="flbl">กำหนดชำระครั้งถัดไป</label>
+      <input class="finp" type="date" id="dNextDate">
+    </div>
     <button class="btn btn-p" id="saveDebtBtn">💾 บันทึก</button>
   </div>
 </div>
@@ -495,6 +500,18 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
         <div class="amtwrap" style="flex:1"><span class="cur">฿</span><input class="finp" type="number" id="payAmt" placeholder="จำนวน" inputmode="decimal"></div>
         <button class="btn btn-p" id="payBtn" style="width:auto;padding:12px 16px;font-size:14px;margin-top:0">ชำระ</button>
       </div>
+    </div>
+    <div class="fgrp">
+      <label class="flbl">แก้ไขยอดหนี้คงเหลือ</label>
+      <div style="display:flex;gap:8px">
+        <div class="amtwrap" style="flex:1"><span class="cur">฿</span><input class="finp" type="number" id="editDebtAmt" placeholder="ยอดใหม่" inputmode="decimal"></div>
+        <button class="btn btn-s" id="editDebtBtn" style="width:auto;padding:12px 16px;font-size:14px;margin-top:0">บันทึก</button>
+      </div>
+    </div>
+    <div class="fgrp">
+      <label class="flbl">กำหนดชำระครั้งถัดไป</label>
+      <input class="finp" type="date" id="debtNextDate">
+      <button class="btn btn-s" id="saveNextDateBtn" style="margin-top:8px">💾 บันทึกวันนัดชำระ</button>
     </div>
     <button class="btn btn-d" id="delDebtBtn">🗑️ ลบรายการหนี้</button>
     <button class="btn btn-s" id="closeDebtDetailBtn">ปิด</button>
@@ -877,6 +894,32 @@ function buildCatGrid(type) {
       selCat=el.dataset.catid;
       document.querySelectorAll('[data-catid]').forEach(function(e){e.classList.remove('active');});
       el.classList.add('active');
+      showNoteSuggestions(selCat);
+    });
+  });
+  if(selCat) showNoteSuggestions(selCat);
+}
+
+function showNoteSuggestions(catId) {
+  var box = document.getElementById('noteSuggestions');
+  if(!box) return;
+  // หา note ล่าสุดของหมวดนี้ (ไม่ซ้ำ, เรียงจากใหม่ไปเก่า)
+  var seen = {};
+  var suggestions = [];
+  var txs = db.transactions.filter(function(t){ return t.category===catId && t.note && t.note.trim(); });
+  txs.sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
+  txs.forEach(function(t){
+    var n = t.note.trim();
+    if(!seen[n]){ seen[n]=true; suggestions.push(n); }
+  });
+  suggestions = suggestions.slice(0,6);
+  if(!suggestions.length){ box.innerHTML=''; return; }
+  box.innerHTML = suggestions.map(function(s){
+    return '<div style="padding:5px 12px;background:var(--accent-bg);color:var(--accent-dk);border-radius:20px;font-size:13px;cursor:pointer;border:1px solid var(--sand)" data-sug="'+s.replace(/"/g,'&quot;')+'">'+s+'</div>';
+  }).join('');
+  box.querySelectorAll('[data-sug]').forEach(function(el){
+    el.addEventListener('click', function(){
+      document.getElementById('txNote').value = el.dataset.sug;
     });
   });
 }
@@ -1018,10 +1061,12 @@ function saveDebt() {
   var amount=parseFloat(document.getElementById('dAmt').value);
   var note=document.getElementById('dNote').value.trim();
   var due=document.getElementById('dDue').value;
+  var nextDate=document.getElementById('dNextDate').value;
   if(!person){toast('กรุณาใส่ชื่อ');return;}
   if(!amount||amount<=0){toast('กรุณากรอกจำนวนเงิน');return;}
-  db.debts.push({id:mkid(),dtype:debtType,person:person,amount:amount,paid:0,note:note,due:due,settled:false,created:ts()});
+  db.debts.push({id:mkid(),dtype:debtType,person:person,amount:amount,paid:0,note:note,due:due,nextDate:nextDate,settled:false,created:ts()});
   saveDB(); closeModal('mDebt'); renderDebts(); toast('บันทึกหนี้แล้ว ✓');
+  if(nextDate) scheduleDebtNotification(person, nextDate);
 }
 
 function openDebtDetail(id) {
@@ -1029,17 +1074,32 @@ function openDebtDetail(id) {
   var d=db.debts.find(function(x){return x.id===id;}); if(!d) return;
   var rem=d.amount-d.paid;
   var pct=d.amount>0?Math.round(d.paid/d.amount*100):0;
+  var nextTxt='';
+  if(d.nextDate){
+    var nd=new Date(d.nextDate);
+    var today=new Date(); today.setHours(0,0,0,0);
+    var diff=Math.round((nd-today)/(1000*60*60*24));
+    var ndStr=nd.toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'});
+    var urgColor = diff<=3?'var(--red-dk)':diff<=7?'var(--amber,#e09640)':'var(--text2)';
+    var urgTxt = diff<0?'เกินกำหนดแล้ว '+Math.abs(diff)+' วัน':diff===0?'วันนี้!':diff<=3?'อีก '+diff+' วัน':'อีก '+diff+' วัน';
+    nextTxt='<div style="margin-top:8px;padding:10px 12px;background:var(--bg2);border-radius:10px;display:flex;align-items:center;justify-content:space-between">'+
+      '<div><div style="font-size:11px;color:var(--text3)">ชำระครั้งถัดไป</div><div style="font-size:13px;font-weight:600">'+ndStr+'</div></div>'+
+      '<div style="font-size:13px;font-weight:700;color:'+urgColor+'">'+urgTxt+'</div></div>';
+  }
   document.getElementById('debtDetailContent').innerHTML=
     '<div class="mtitle">'+d.person+'</div>'+
-    '<div style="display:flex;gap:12px;margin-bottom:16px">'+
+    '<div style="display:flex;gap:12px;margin-bottom:12px">'+
     '<div style="flex:1;text-align:center"><div style="font-size:12px;color:var(--text3);margin-bottom:4px">เงินต้น</div><div style="font-size:20px;font-weight:700;color:var(--text)">'+fmt(d.amount)+'</div></div>'+
     '<div style="flex:1;text-align:center"><div style="font-size:12px;color:var(--text3);margin-bottom:4px">คงเหลือ</div><div style="font-size:20px;font-weight:700;color:'+(d.dtype==='owe'?'var(--red-dk)':'var(--sky-dk)')+'">'+fmt(rem)+'</div></div>'+
     '</div>'+
-    '<div class="dpbar" style="margin-bottom:8px"><div class="dpfill '+(d.dtype==='owe'?'dpfill-o':'dpfill-l')+'" style="width:'+pct+'%"></div></div>'+
-    '<div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:12px">ชำระแล้ว '+pct+'% ('+fmt(d.paid)+')</div>'+
-    (d.note?'<div style="font-size:13px;color:var(--text2);margin-bottom:8px">📝 '+d.note+'</div>':'')+
-    (d.due?'<div style="font-size:13px;color:var(--text2)">📅 ครบ: '+new Date(d.due).toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'})+'</div>':'');
+    '<div class="dpbar" style="margin-bottom:6px"><div class="dpfill '+(d.dtype==='owe'?'dpfill-o':'dpfill-l')+'" style="width:'+pct+'%"></div></div>'+
+    '<div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:8px">ชำระแล้ว '+pct+'% ('+fmt(d.paid)+')</div>'+
+    (d.note?'<div style="font-size:13px;color:var(--text2);margin-bottom:6px">📝 '+d.note+'</div>':'')+
+    (d.due?'<div style="font-size:13px;color:var(--text2);margin-bottom:4px">📅 ครบกำหนด: '+new Date(d.due).toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'})+'</div>':'')+
+    nextTxt;
   document.getElementById('payAmt').value='';
+  document.getElementById('editDebtAmt').value=rem>0?rem:'';
+  document.getElementById('debtNextDate').value=d.nextDate||'';
   openModal('mDebtDetail');
 }
 
@@ -1050,6 +1110,73 @@ function payDebt() {
   d.paid=Math.min(d.paid+amt,d.amount);
   if(d.paid>=d.amount){d.settled=true;toast('ชำระครบแล้ว 🎉');}else{toast('บันทึกการชำระแล้ว ✓');}
   saveDB(); closeModal('mDebtDetail'); renderDebts();
+}
+
+function editDebtAmount() {
+  var newAmt=parseFloat(document.getElementById('editDebtAmt').value);
+  if(isNaN(newAmt)||newAmt<0){toast('ตัวเลขไม่ถูกต้อง');return;}
+  var d=db.debts.find(function(x){return x.id===curDebtId;}); if(!d) return;
+  // ตั้ง amount ใหม่ให้เท่ากับ paid + ยอดที่แก้
+  d.amount = d.paid + newAmt;
+  if(d.amount<=d.paid){d.settled=true;toast('ชำระครบแล้ว 🎉');}else{toast('แก้ยอดหนี้แล้ว ✓');}
+  saveDB(); closeModal('mDebtDetail'); renderDebts();
+}
+
+function saveNextDate() {
+  var nd=document.getElementById('debtNextDate').value;
+  var d=db.debts.find(function(x){return x.id===curDebtId;}); if(!d) return;
+  d.nextDate=nd;
+  saveDB();
+  if(nd) scheduleDebtNotification(d.person, nd);
+  toast('บันทึกวันนัดชำระแล้ว ✓');
+  closeModal('mDebtDetail'); renderDebts();
+}
+
+function scheduleDebtNotification(person, dateStr) {
+  if(!('Notification' in window)) return;
+  Notification.requestPermission().then(function(perm){
+    if(perm!=='granted') return;
+    var target=new Date(dateStr);
+    target.setHours(8,0,0,0);
+    var now=new Date();
+    var delay=target-now;
+    if(delay<=0){
+      // ถึงวันแล้ว แจ้งเลย
+      new Notification('เป๋าตังค์พารวย 💰', {
+        body: 'ถึงวันชำระหนี้ให้ '+person+' แล้ว!',
+        icon: '/My-Money/icon-192.png',
+        tag: 'debt-'+person
+      });
+    } else if(delay < 7*24*60*60*1000) {
+      // ภายใน 7 วัน ตั้ง timeout (ใช้งานได้เมื่อแอปเปิดอยู่)
+      setTimeout(function(){
+        new Notification('เป๋าตังค์พารวย 💰', {
+          body: 'ถึงวันชำระหนี้ให้ '+person+' แล้ว!',
+          icon: '/My-Money/icon-192.png',
+          tag: 'debt-'+person
+        });
+      }, delay);
+      var days=Math.round(delay/(1000*60*60*24));
+      toast('จะแจ้งเตือนชำระ '+person+' ใน '+days+' วัน');
+    }
+  });
+}
+
+// เช็คหนี้ที่ถึงกำหนดทุกครั้งที่โหลดแอป
+function checkDebtNotifications() {
+  if(!('Notification' in window)||Notification.permission!=='granted') return;
+  var today=new Date(); today.setHours(0,0,0,0);
+  db.debts.filter(function(d){return !d.settled&&d.nextDate;}).forEach(function(d){
+    var nd=new Date(d.nextDate); nd.setHours(0,0,0,0);
+    var diff=Math.round((nd-today)/(1000*60*60*24));
+    if(diff<=1&&diff>=0){
+      new Notification('เป๋าตังค์พารวย 💰', {
+        body: diff===0?'วันนี้ต้องชำระหนี้ให้ '+d.person+'!':'พรุ่งนี้ต้องชำระหนี้ให้ '+d.person,
+        icon: '/My-Money/icon-192.png',
+        tag: 'debt-'+d.id
+      });
+    }
+  });
 }
 
 function deleteDebt() {
@@ -1223,6 +1350,8 @@ document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('delTxBtn').addEventListener('click', deleteTx);
   document.getElementById('closeTxDetailBtn').addEventListener('click', function(){ closeModal('mTxDetail'); });
   document.getElementById('payBtn').addEventListener('click', payDebt);
+  document.getElementById('editDebtBtn').addEventListener('click', editDebtAmount);
+  document.getElementById('saveNextDateBtn').addEventListener('click', saveNextDate);
   document.getElementById('delDebtBtn').addEventListener('click', deleteDebt);
   document.getElementById('closeDebtDetailBtn').addEventListener('click', function(){ closeModal('mDebtDetail'); });
 
@@ -1258,6 +1387,11 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 
   renderAll();
+  // ขอสิทธิ์ notification และเช็คหนี้ที่ถึงกำหนด
+  if('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+  setTimeout(checkDebtNotifications, 2000);
 });
 </script>
 </body>
