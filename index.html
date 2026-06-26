@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="theme-color" content="#f0f4ff">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="เป๋าตังค์พารวย">
@@ -535,84 +536,12 @@ function fmt(n) { return '฿'+Math.abs(n).toLocaleString('th-TH',{minimumFracti
 function todayStr() { return new Date().toISOString().split('T')[0]; }
 function catById(id) { return [...CATS.expense,...CATS.income].find(c=>c.id===id)||null; }
 
-// ── INIT ──────────────────────────────────────────────────────
-loadDB();
-document.getElementById('hdate').textContent = new Date().toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});
-renderAll();
-
-// ── NAVIGATION ───────────────────────────────────────────────
-document.querySelectorAll('[data-page]').forEach(el=>{
-  el.addEventListener('click', ()=>goPage(el.dataset.page));
-});
-
 function goPage(name) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('[data-page]').forEach(b=>b.classList.remove('active'));
   document.getElementById('pg-'+name).classList.add('active');
   document.querySelectorAll('[data-page="'+name+'"]').forEach(b=>b.classList.add('active'));
 }
-
-// ── FAB ───────────────────────────────────────────────────────
-document.getElementById('fab').addEventListener('click', function(){
-  const cur = document.querySelector('.page.active');
-  if(cur && cur.id==='pg-debts') openDebtModal();
-  else openTxModal();
-});
-
-// ── HISTORY CONTROLS ──────────────────────────────────────────
-document.getElementById('histPrev').addEventListener('click', function(){ histM--; if(histM<0){histM=11;histY--;} renderHistory(); });
-document.getElementById('histNext').addEventListener('click', function(){ histM++; if(histM>11){histM=0;histY++;} renderHistory(); });
-document.getElementById('histSearch').addEventListener('input', renderHistory);
-document.getElementById('histSort').addEventListener('change', renderHistory);
-document.querySelectorAll('[data-hf]').forEach(function(el){
-  el.addEventListener('click', function(){
-    document.querySelectorAll('[data-hf]').forEach(function(e){e.classList.remove('active');});
-    el.classList.add('active');
-    histFilter = el.dataset.hf;
-    renderHistory();
-  });
-});
-
-// ── DEBT FILTER ───────────────────────────────────────────────
-document.querySelectorAll('[data-df]').forEach(function(el){
-  el.addEventListener('click', function(){
-    document.querySelectorAll('[data-df]').forEach(function(e){e.classList.remove('active');});
-    el.classList.add('active');
-    debtFilter = el.dataset.df;
-    renderDebts();
-  });
-});
-
-// ── ANALYTICS NAV ─────────────────────────────────────────────
-document.getElementById('anaPrev').addEventListener('click', function(){ anaM--; if(anaM<0){anaM=11;anaY--;} renderAnalytics(); });
-document.getElementById('anaNext').addEventListener('click', function(){ anaM++; if(anaM>11){anaM=0;anaY++;} renderAnalytics(); });
-
-// ── TX TYPE TOGGLE ────────────────────────────────────────────
-document.querySelectorAll('#txTypeTog .tbtn').forEach(function(el){
-  el.addEventListener('click', function(){ setTxType(el.dataset.txtype); });
-});
-
-// ── DEBT TYPE TOGGLE ──────────────────────────────────────────
-document.querySelectorAll('#debtTypeTog .tbtn').forEach(function(el){
-  el.addEventListener('click', function(){ setDebtType(el.dataset.dtype); });
-});
-
-// ── MODAL BUTTONS ─────────────────────────────────────────────
-document.getElementById('saveTxBtn').addEventListener('click', saveTx);
-document.getElementById('addWalletBtn').addEventListener('click', openWalletModal);
-document.getElementById('saveWBtn').addEventListener('click', saveWallet);
-document.getElementById('saveDebtBtn').addEventListener('click', saveDebt);
-document.getElementById('editTxBtn').addEventListener('click', function(){ closeModal('mTxDetail'); editTx(curTxId); });
-document.getElementById('delTxBtn').addEventListener('click', deleteTx);
-document.getElementById('closeTxDetailBtn').addEventListener('click', function(){ closeModal('mTxDetail'); });
-document.getElementById('payBtn').addEventListener('click', payDebt);
-document.getElementById('delDebtBtn').addEventListener('click', deleteDebt);
-document.getElementById('closeDebtDetailBtn').addEventListener('click', function(){ closeModal('mDebtDetail'); });
-
-// close on overlay tap
-document.querySelectorAll('.moverlay').forEach(function(el){
-  el.addEventListener('click', function(e){ if(e.target===el) closeModal(el.id); });
-});
 
 // ── RENDER ALL ────────────────────────────────────────────────
 function renderAll() {
@@ -1023,6 +952,83 @@ function toast(msg) {
 
 // ── PWA ──────────────────────────────────────────────────────
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
+
+// ── INIT (รอ DOM พร้อมก่อนทุกอย่าง) ────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+  loadDB();
+  document.getElementById('hdate').textContent = new Date().toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});
+
+  // navigation
+  document.querySelectorAll('[data-page]').forEach(function(el){
+    el.addEventListener('click', function(){ goPage(el.dataset.page); });
+  });
+
+  // FAB
+  document.getElementById('fab').addEventListener('click', function(){
+    var cur = document.querySelector('.page.active');
+    if(cur && cur.id==='pg-debts') openDebtModal();
+    else openTxModal();
+  });
+
+  // history month nav
+  document.getElementById('histPrev').addEventListener('click', function(){ histM--; if(histM<0){histM=11;histY--;} renderHistory(); });
+  document.getElementById('histNext').addEventListener('click', function(){ histM++; if(histM>11){histM=0;histY++;} renderHistory(); });
+  document.getElementById('histSearch').addEventListener('input', renderHistory);
+  document.getElementById('histSort').addEventListener('change', renderHistory);
+
+  // history filter
+  document.querySelectorAll('[data-hf]').forEach(function(el){
+    el.addEventListener('click', function(){
+      document.querySelectorAll('[data-hf]').forEach(function(e){e.classList.remove('active');});
+      el.classList.add('active');
+      histFilter = el.dataset.hf;
+      renderHistory();
+    });
+  });
+
+  // debt filter
+  document.querySelectorAll('[data-df]').forEach(function(el){
+    el.addEventListener('click', function(){
+      document.querySelectorAll('[data-df]').forEach(function(e){e.classList.remove('active');});
+      el.classList.add('active');
+      debtFilter = el.dataset.df;
+      renderDebts();
+    });
+  });
+
+  // analytics month nav
+  document.getElementById('anaPrev').addEventListener('click', function(){ anaM--; if(anaM<0){anaM=11;anaY--;} renderAnalytics(); });
+  document.getElementById('anaNext').addEventListener('click', function(){ anaM++; if(anaM>11){anaM=0;anaY++;} renderAnalytics(); });
+
+  // tx type toggle
+  document.querySelectorAll('#txTypeTog .tbtn').forEach(function(el){
+    el.addEventListener('click', function(){ setTxType(el.dataset.txtype); });
+  });
+
+  // debt type toggle
+  document.querySelectorAll('#debtTypeTog .tbtn').forEach(function(el){
+    el.addEventListener('click', function(){ setDebtType(el.dataset.dtype); });
+  });
+
+  // modal buttons
+  document.getElementById('saveTxBtn').addEventListener('click', saveTx);
+  document.getElementById('addWalletBtn').addEventListener('click', openWalletModal);
+  document.getElementById('saveWBtn').addEventListener('click', saveWallet);
+  document.getElementById('saveDebtBtn').addEventListener('click', saveDebt);
+  document.getElementById('editTxBtn').addEventListener('click', function(){ closeModal('mTxDetail'); editTx(curTxId); });
+  document.getElementById('delTxBtn').addEventListener('click', deleteTx);
+  document.getElementById('closeTxDetailBtn').addEventListener('click', function(){ closeModal('mTxDetail'); });
+  document.getElementById('payBtn').addEventListener('click', payDebt);
+  document.getElementById('delDebtBtn').addEventListener('click', deleteDebt);
+  document.getElementById('closeDebtDetailBtn').addEventListener('click', function(){ closeModal('mDebtDetail'); });
+
+  // close modal on overlay tap
+  document.querySelectorAll('.moverlay').forEach(function(el){
+    el.addEventListener('click', function(e){ if(e.target===el) closeModal(el.id); });
+  });
+
+  renderAll();
+});
 </script>
 </body>
 </html>
