@@ -541,14 +541,13 @@ const DEFAULT_CATS = {
     {id:'home',e:'🏠',n:'บ้าน'},{id:'ent',e:'🎬',n:'บันเทิง'},
     {id:'edu',e:'📚',n:'การศึกษา'},{id:'util',e:'💡',n:'ค่าน้ำไฟ'},
     {id:'beauty',e:'💄',n:'ความงาม'},{id:'pet',e:'🐾',n:'สัตว์เลี้ยง'},
-    {id:'ins',e:'🛡️',n:'ประกัน'},{id:'music',e:'🎸',n:'เล่นดนตรี'},
-    {id:'conv',e:'🏪',n:'ร้านสะดวกซื้อ'},{id:'other_e',e:'📦',n:'อื่นๆ'},
+    {id:'ins',e:'🛡️',n:'ประกัน'},{id:'conv',e:'🏪',n:'ร้านสะดวกซื้อ'},{id:'other_e',e:'📦',n:'อื่นๆ'},
   ],
   income:[
     {id:'salary',e:'💼',n:'เงินเดือน'},{id:'bonus',e:'🎁',n:'โบนัส'},
     {id:'freelance',e:'💻',n:'ฟรีแลนซ์'},{id:'invest',e:'📈',n:'ลงทุน'},
     {id:'sell',e:'🏪',n:'ขายของ'},{id:'rent',e:'🏢',n:'ค่าเช่า'},
-    {id:'gift',e:'🎀',n:'ของขวัญ'},{id:'other_i',e:'✨',n:'อื่นๆ'},
+    {id:'music',e:'🎸',n:'เล่นดนตรี'},{id:'gift',e:'🎀',n:'ของขวัญ'},{id:'other_i',e:'✨',n:'อื่นๆ'},
   ]
 };
 let CATS = {expense:[...DEFAULT_CATS.expense], income:[...DEFAULT_CATS.income]};
@@ -721,10 +720,54 @@ function renderWallets() {
   document.getElementById('wCount').textContent=db.wallets.length+' ใบ';
   var el=document.getElementById('walletList');
   el.innerHTML=db.wallets.map(function(w){
-    return '<div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:10px"><div class="wicon" style="background:'+w.color+'22;width:40px;height:40px;border-radius:10px">'+(WICONS[w.type]||'💰')+'</div><div><div style="font-size:15px;font-weight:600">'+w.name+'</div><div style="font-size:12px;color:var(--text3)">'+(WTYPE_NAME[w.type]||w.type)+'</div></div></div><div style="text-align:right"><div style="font-size:18px;font-weight:700;color:'+(w.balance<0?'var(--red-dk)':'var(--text)')+'">'+fmt(w.balance)+'</div><button class="del-btn" data-delw="'+w.id+'">🗑️</button></div></div></div>';
+    // คำนวณยอดจากธุรกรรมทั้งหมด
+    var calcBal = db.transactions.reduce(function(s,t){
+      if(t.type==='income'&&t.walletId===w.id) return s+t.amount;
+      if(t.type==='expense'&&t.walletId===w.id) return s-t.amount;
+      if(t.type==='transfer'&&t.walletId===w.id) return s-t.amount;
+      if(t.type==='transfer'&&t.toWalletId===w.id) return s+t.amount;
+      return s;
+    }, w.initBalance||0);
+    var diff = w.balance - calcBal;
+    var diffTxt = '';
+    if(Math.abs(diff)>0.01){
+      var sign = diff>0?'+':'';
+      diffTxt = '<div style="font-size:11px;margin-top:2px;color:'+(diff>0?'var(--green-dk)':'var(--red-dk)')+'">ต่างจากธุรกรรม '+sign+fmt(diff)+'</div>';
+    }
+    return '<div class="card" style="margin-bottom:10px">'+
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'+
+        '<div class="wicon" style="background:'+w.color+'22;width:44px;height:44px;border-radius:12px;flex-shrink:0">'+(WICONS[w.type]||'💰')+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:15px;font-weight:600">'+w.name+'</div>'+
+          '<div style="font-size:12px;color:var(--text3)">'+(WTYPE_NAME[w.type]||w.type)+'</div>'+
+        '</div>'+
+        '<button class="del-btn" data-delw="'+w.id+'">🗑️</button>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:8px">'+
+        '<div style="flex:1">'+
+          '<div style="font-size:11px;color:var(--text3);margin-bottom:4px">ยอดปัจจุบัน</div>'+
+          '<div style="display:flex;align-items:center;gap:6px">'+
+            '<span style="font-size:14px;color:var(--text2)">฿</span>'+
+            '<input type="number" class="finp" data-editw="'+w.id+'" value="'+w.balance+'" inputmode="decimal" style="font-size:18px;font-weight:700;padding:6px 8px;color:'+(w.balance<0?'var(--red-dk)':'var(--text)')+'">'+
+          '</div>'+
+          diffTxt+
+        '</div>'+
+        '<button class="btn btn-p" data-savew="'+w.id+'" style="width:auto;padding:10px 16px;font-size:14px;margin-top:0">บันทึก</button>'+
+      '</div>'+
+    '</div>';
   }).join('');
   el.querySelectorAll('[data-delw]').forEach(function(btn){
     btn.addEventListener('click', function(e){ e.stopPropagation(); deleteWallet(btn.dataset.delw); });
+  });
+  el.querySelectorAll('[data-savew]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var wid = btn.dataset.savew;
+      var inp = el.querySelector('[data-editw="'+wid+'"]');
+      var newBal = parseFloat(inp.value);
+      if(isNaN(newBal)){ toast('ตัวเลขไม่ถูกต้อง'); return; }
+      var w = db.wallets.find(function(x){return x.id===wid;});
+      if(w){ w.balance = newBal; saveDB(); renderWallets(); renderHome(); toast('บันทึกยอดแล้ว ✓'); }
+    });
   });
 }
 
@@ -940,7 +983,7 @@ function saveWallet() {
   var bal=parseFloat(document.getElementById('wBal').value)||0;
   var type=document.getElementById('wType').value;
   if(!name){toast('กรุณาใส่ชื่อกระเป๋า');return;}
-  db.wallets.push({id:mkid(),name:name,type:type,balance:bal,color:selColor,created:ts()});
+  db.wallets.push({id:mkid(),name:name,type:type,balance:bal,initBalance:bal,color:selColor,created:ts()});
   saveDB(); closeModal('mWallet'); renderAll(); toast('เพิ่มกระเป๋าแล้ว ✓');
 }
 
