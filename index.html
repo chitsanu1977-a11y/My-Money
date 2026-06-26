@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="เป๋าตังค์พารวย">
 <title>เป๋าตังค์พารวย</title>
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%233b6ef8'/><text y='.9em' font-size='70' x='15'>💰</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231a45c8'/><text y='62' x='50' text-anchor='middle' font-size='52' font-weight='bold'>💰</text><text y='22' x='20' font-size='18'>✨</text><text y='90' x='75' font-size='16'>⭐</text></svg>">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap">
 <style>
@@ -547,6 +547,22 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
+<!-- MODAL: CONFIRM DELETE -->
+<div class="moverlay" id="mConfirm">
+  <div class="modal" style="padding-bottom:24px">
+    <div class="mhandle"></div>
+    <div style="text-align:center;padding:8px 0 20px">
+      <div style="font-size:44px;margin-bottom:12px" id="confirmIcon">🗑️</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:8px;color:var(--text)" id="confirmTitle">ยืนยันการลบ</div>
+      <div style="font-size:15px;color:var(--text2);line-height:1.5" id="confirmMsg">แน่ใจว่าต้องการลบ?</div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-s" id="confirmCancelBtn" style="flex:1;margin-top:0">ยกเลิก</button>
+      <button class="btn btn-d" id="confirmOkBtn" style="flex:1;margin-top:0">ลบเลย</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -996,10 +1012,24 @@ function openTxDetail(id) {
   openModal('mTxDetail');
 }
 
+// ── CONFIRM HELPER ───────────────────────────────────────────
+var confirmCallback = null;
+function confirmDo(icon, title, msg, onConfirm) {
+  document.getElementById('confirmIcon').textContent = icon;
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  confirmCallback = onConfirm;
+  openModal('mConfirm');
+}
+
 function deleteTx() {
-  reverseWallet(db.transactions.find(function(t){return t.id===curTxId;}));
-  db.transactions=db.transactions.filter(function(t){return t.id!==curTxId;});
-  saveDB(); closeModal('mTxDetail'); renderAll(); toast('ลบแล้ว');
+  var t = db.transactions.find(function(x){return x.id===curTxId;});
+  var label = t ? (t.note || catById(t.category)?.n || 'รายการนี้') : 'รายการนี้';
+  confirmDo('🗑️','ลบรายการ?', '"'+label+'" จะถูกลบและยอดกระเป๋าจะถูกคืนกลับ', function(){
+    reverseWallet(db.transactions.find(function(x){return x.id===curTxId;}));
+    db.transactions=db.transactions.filter(function(t){return t.id!==curTxId;});
+    saveDB(); closeModal('mTxDetail'); renderAll(); toast('ลบรายการแล้ว');
+  });
 }
 
 // ── WALLET MODAL ─────────────────────────────────────────────
@@ -1032,9 +1062,11 @@ function saveWallet() {
 
 function deleteWallet(id) {
   if(db.wallets.length<=1){toast('ต้องมีกระเป๋าอย่างน้อย 1 ใบ');return;}
-  if(!confirm('ลบกระเป๋านี้?')) return;
-  db.wallets=db.wallets.filter(function(w){return w.id!==id;});
-  saveDB(); renderAll(); toast('ลบกระเป๋าแล้ว');
+  var w = db.wallets.find(function(x){return x.id===id;});
+  confirmDo('👛','ลบกระเป๋า?', '"'+(w?w.name:'กระเป๋านี้')+'" จะถูกลบถาวร รายการที่เกี่ยวข้องยังคงอยู่', function(){
+    db.wallets=db.wallets.filter(function(x){return x.id!==id;});
+    saveDB(); renderAll(); toast('ลบกระเป๋าแล้ว');
+  });
 }
 
 // ── DEBT MODAL ───────────────────────────────────────────────
@@ -1180,8 +1212,11 @@ function checkDebtNotifications() {
 }
 
 function deleteDebt() {
-  db.debts=db.debts.filter(function(d){return d.id!==curDebtId;});
-  saveDB(); closeModal('mDebtDetail'); renderDebts(); toast('ลบแล้ว');
+  var d = db.debts.find(function(x){return x.id===curDebtId;});
+  confirmDo('💸','ลบรายการหนี้?', '"'+(d?d.person:'รายการนี้')+'" จะถูกลบถาวร', function(){
+    db.debts=db.debts.filter(function(x){return x.id!==curDebtId;});
+    saveDB(); closeModal('mDebtDetail'); renderDebts(); toast('ลบรายการหนี้แล้ว');
+  });
 }
 
 // ── CATEGORIES PAGE ──────────────────────────────────────────
@@ -1256,12 +1291,11 @@ function saveCat() {
 }
 
 function deleteCat(id, type) {
-  if(!confirm('ลบหมวดหมู่นี้?')) return;
-  if(db.cats&&db.cats[type]) db.cats[type] = db.cats[type].filter(function(c){return c.id!==id;});
-  mergeCats();
-  saveDB();
-  renderCats();
-  toast('ลบแล้ว');
+  var c = (db.cats&&db.cats[type]||[]).find(function(x){return x.id===id;});
+  confirmDo('🏷️','ลบหมวดหมู่?', '"'+(c?c.n:'หมวดนี้')+'" จะถูกลบถาวร', function(){
+    if(db.cats&&db.cats[type]) db.cats[type]=db.cats[type].filter(function(x){return x.id!==id;});
+    mergeCats(); saveDB(); renderCats(); toast('ลบหมวดหมู่แล้ว');
+  });
 }
 
 // ── MODAL HELPERS ────────────────────────────────────────────
@@ -1340,6 +1374,9 @@ document.addEventListener('DOMContentLoaded', function(){
   document.querySelectorAll('#debtTypeTog .tbtn').forEach(function(el){
     el.addEventListener('click', function(){ setDebtType(el.dataset.dtype); });
   });
+
+  document.getElementById('confirmCancelBtn').addEventListener('click', function(){ closeModal('mConfirm'); confirmCallback=null; });
+  document.getElementById('confirmOkBtn').addEventListener('click', function(){ closeModal('mConfirm'); if(confirmCallback){ confirmCallback(); confirmCallback=null; } });
 
   // modal buttons
   document.getElementById('saveTxBtn').addEventListener('click', saveTx);
