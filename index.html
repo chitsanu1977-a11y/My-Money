@@ -6,1020 +6,505 @@
 <meta name="theme-color" content="#f9f5f0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="บัญชีส่วนตัว">
-<title>บัญชีส่วนตัว</title>
+<meta name="apple-mobile-web-app-title" content="เงิน.ฉัน">
+<title>เงิน.ฉัน</title>
 <link rel="manifest" href="manifest.json">
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap">
 <style>
-  :root {
-    --cream: #f9f5f0;
-    --cream2: #f2ece3;
-    --sand: #e8ddd0;
-    --text: #2d2420;
-    --text2: #7a6a5e;
-    --text3: #b8a898;
-    --green: #4caf7d;
-    --green-bg: #edf7f2;
-    --green-dark: #2d7a54;
-    --red: #e05c5c;
-    --red-bg: #fdf0f0;
-    --red-dark: #a83c3c;
-    --blue: #5b8fd4;
-    --blue-bg: #eff4fc;
-    --blue-dark: #2d5ba0;
-    --amber: #e09640;
-    --amber-bg: #fdf5eb;
-    --amber-dark: #a06820;
-    --purple: #9b72d4;
-    --purple-bg: #f3eefb;
-    --purple-dark: #6040a0;
-    --radius: 14px;
-    --radius-sm: 8px;
-    --shadow: 0 2px 12px rgba(45,36,32,0.08);
-    --shadow-md: 0 4px 20px rgba(45,36,32,0.12);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body {
-    font-family: 'Sarabun', sans-serif;
-    background: var(--cream);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 15px;
-    line-height: 1.5;
-    max-width: 480px;
-    margin: 0 auto;
-    position: relative;
-    overflow-x: hidden;
-  }
-  /* HEADER */
-  .app-header {
-    background: var(--cream);
-    padding: 20px 20px 0;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 4px;
-  }
-  .app-logo {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: -0.3px;
-  }
-  .app-logo span { color: var(--green-dark); }
-  .header-date {
-    font-size: 13px;
-    color: var(--text3);
-  }
-  /* TABS */
-  .tab-bar {
-    display: flex;
-    gap: 4px;
-    padding: 14px 20px 0;
-    background: var(--cream);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .tab-bar::-webkit-scrollbar { display: none; }
-  .tab-btn {
-    flex-shrink: 0;
-    padding: 7px 16px;
-    border-radius: 20px;
-    border: none;
-    background: transparent;
-    color: var(--text2);
-    font-family: 'Sarabun', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .tab-btn.active {
-    background: var(--text);
-    color: white;
-  }
-  /* PAGES */
-  .page { display: none; padding: 16px 20px 100px; }
-  .page.active { display: block; }
-  /* CARD */
-  .card {
-    background: white;
-    border-radius: var(--radius);
-    padding: 18px;
-    box-shadow: var(--shadow);
-    margin-bottom: 12px;
-  }
-  /* SUMMARY CARD */
-  .summary-card {
-    background: linear-gradient(135deg, #2d7a54 0%, #4caf7d 100%);
-    border-radius: var(--radius);
-    padding: 22px;
-    color: white;
-    margin-bottom: 12px;
-    position: relative;
-    overflow: hidden;
-  }
-  .summary-card::before {
-    content: '';
-    position: absolute;
-    top: -30px;
-    right: -30px;
-    width: 120px;
-    height: 120px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 50%;
-  }
-  .summary-card::after {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    right: 40px;
-    width: 80px;
-    height: 80px;
-    background: rgba(255,255,255,0.07);
-    border-radius: 50%;
-  }
-  .summary-label {
-    font-size: 12px;
-    opacity: 0.8;
-    margin-bottom: 4px;
-  }
-  .summary-amount {
-    font-size: 32px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    margin-bottom: 16px;
-  }
-  .summary-row {
-    display: flex;
-    gap: 12px;
-  }
-  .summary-mini {
-    flex: 1;
-    background: rgba(255,255,255,0.18);
-    border-radius: 10px;
-    padding: 10px 12px;
-  }
-  .summary-mini .label { font-size: 11px; opacity: 0.85; margin-bottom: 2px; }
-  .summary-mini .amount { font-size: 15px; font-weight: 600; }
-  /* WALLET CARDS */
-  .wallet-scroll {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding: 2px 0 8px;
-    margin-bottom: 4px;
-  }
-  .wallet-scroll::-webkit-scrollbar { display: none; }
-  .wallet-card {
-    flex-shrink: 0;
-    background: white;
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    min-width: 140px;
-    box-shadow: var(--shadow);
-    cursor: pointer;
-    transition: transform 0.15s;
-    position: relative;
-  }
-  .wallet-card:active { transform: scale(0.97); }
-  .wallet-card.selected { box-shadow: 0 0 0 2px var(--green), var(--shadow); }
-  .wallet-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    margin-bottom: 8px;
-  }
-  .wallet-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .wallet-balance { font-size: 15px; font-weight: 700; color: var(--text); margin-top: 2px; }
-  .wallet-type { font-size: 11px; color: var(--text3); margin-top: 1px; }
-  /* SECTION TITLE */
-  .section-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text2);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 20px 0 10px;
-  }
-  /* TRANSACTION LIST */
-  .tx-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--cream2);
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
-  .tx-item:last-child { border-bottom: none; }
-  .tx-item:active { opacity: 0.7; }
-  .tx-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
-  }
-  .tx-info { flex: 1; min-width: 0; }
-  .tx-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tx-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
-  .tx-amount { font-size: 15px; font-weight: 600; flex-shrink: 0; }
-  .tx-amount.income { color: var(--green-dark); }
-  .tx-amount.expense { color: var(--red-dark); }
-  .tx-amount.transfer { color: var(--blue-dark); }
-  .tx-amount.debt { color: var(--purple-dark); }
-  /* STAT GRID */
-  .stat-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .stat-item {
-    background: white;
-    border-radius: var(--radius);
-    padding: 14px;
-    box-shadow: var(--shadow);
-  }
-  .stat-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
-  .stat-value { font-size: 18px; font-weight: 700; color: var(--text); }
-  .stat-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  /* CHART BAR */
-  .chart-wrap { margin: 8px 0 4px; }
-  .chart-bars {
-    display: flex;
-    align-items: flex-end;
-    gap: 6px;
-    height: 80px;
-  }
-  .chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .chart-bar-wrap { width: 100%; display: flex; justify-content: center; align-items: flex-end; height: 70px; gap: 2px; }
-  .chart-bar {
-    width: 10px;
-    border-radius: 4px 4px 0 0;
-    min-height: 3px;
-    transition: height 0.4s ease;
-  }
-  .bar-income { background: var(--green); }
-  .bar-expense { background: var(--red); }
-  .chart-label { font-size: 10px; color: var(--text3); }
-  /* CATEGORY PIE */
-  .cat-list { display: flex; flex-direction: column; gap: 8px; }
-  .cat-row { display: flex; align-items: center; gap: 10px; }
-  .cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .cat-name { flex: 1; font-size: 13px; color: var(--text); }
-  .cat-pct { font-size: 12px; color: var(--text2); margin-right: 4px; }
-  .cat-amt { font-size: 13px; font-weight: 600; color: var(--text); }
-  .cat-bar-wrap { width: 100%; height: 4px; background: var(--cream2); border-radius: 2px; margin-top: 3px; }
-  .cat-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
-  /* FORM */
-  .form-group { margin-bottom: 14px; }
-  .form-label { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 6px; display: block; }
-  .form-input {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1.5px solid var(--sand);
-    border-radius: var(--radius-sm);
-    font-family: 'Sarabun', sans-serif;
-    font-size: 15px;
-    color: var(--text);
-    background: white;
-    outline: none;
-    transition: border-color 0.2s;
-    appearance: none;
-  }
-  .form-input:focus { border-color: var(--green); }
-  .form-select { cursor: pointer; }
-  .amount-input-wrap { position: relative; }
-  .amount-input-wrap .currency { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text2); font-size: 15px; pointer-events: none; }
-  .amount-input-wrap .form-input { padding-left: 32px; }
-  /* TYPE TOGGLE */
-  .type-toggle {
-    display: flex;
-    gap: 6px;
-    background: var(--cream2);
-    border-radius: var(--radius-sm);
-    padding: 4px;
-  }
-  .type-btn {
-    flex: 1;
-    padding: 9px;
-    border: none;
-    border-radius: 6px;
-    background: transparent;
-    font-family: 'Sarabun', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: var(--text2);
-  }
-  .type-btn.active { background: white; color: var(--text); box-shadow: var(--shadow); }
-  .type-btn.income.active { color: var(--green-dark); }
-  .type-btn.expense.active { color: var(--red-dark); }
-  .type-btn.transfer.active { color: var(--blue-dark); }
-  .type-btn.debt.active { color: var(--purple-dark); }
-  /* CAT GRID */
-  .cat-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
-  .cat-option {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 6px;
-    border-radius: var(--radius-sm);
-    border: 1.5px solid transparent;
-    background: var(--cream2);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .cat-option.selected { border-color: var(--green); background: var(--green-bg); }
-  .cat-option .emoji { font-size: 20px; }
-  .cat-option .name { font-size: 11px; color: var(--text2); text-align: center; line-height: 1.2; }
-  /* BTN */
-  .btn {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-family: 'Sarabun', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-primary { background: var(--text); color: white; }
-  .btn-primary:active { transform: scale(0.98); }
-  .btn-danger { background: var(--red-bg); color: var(--red-dark); }
-  .btn-secondary { background: var(--cream2); color: var(--text2); }
-  /* FAB */
-  .fab {
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    width: 54px;
-    height: 54px;
-    background: var(--text);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: var(--shadow-md);
-    z-index: 200;
-    transition: transform 0.2s, background 0.2s;
-  }
-  .fab:active { transform: scale(0.93); }
-  /* BOTTOM NAV */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 480px;
-    background: white;
-    border-top: 1px solid var(--sand);
-    display: flex;
-    z-index: 300;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  .nav-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    padding: 10px 0;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text3);
-    font-family: 'Sarabun', sans-serif;
-    font-size: 11px;
-    transition: color 0.2s;
-  }
-  .nav-btn.active { color: var(--green-dark); }
-  .nav-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  /* MODAL */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(45,36,32,0.4);
-    z-index: 400;
-    align-items: flex-end;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--cream);
-    border-radius: var(--radius) var(--radius) 0 0;
-    width: 100%;
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 20px;
-    padding-bottom: calc(20px + env(safe-area-inset-bottom));
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: slideUp 0.3s ease;
-  }
-  @keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-  }
-  .modal-handle {
-    width: 36px;
-    height: 4px;
-    background: var(--sand);
-    border-radius: 2px;
-    margin: 0 auto 20px;
-  }
-  .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 20px; }
-  /* DEBT CARD */
-  .debt-card {
-    background: white;
-    border-radius: var(--radius);
-    padding: 16px;
-    box-shadow: var(--shadow);
-    margin-bottom: 10px;
-  }
-  .debt-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .debt-name { font-size: 15px; font-weight: 600; }
-  .debt-type-badge {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 20px;
-  }
-  .badge-owe { background: var(--red-bg); color: var(--red-dark); }
-  .badge-lend { background: var(--green-bg); color: var(--green-dark); }
-  .debt-amounts { display: flex; gap: 10px; margin-bottom: 8px; }
-  .debt-amt-item { flex: 1; }
-  .debt-amt-label { font-size: 11px; color: var(--text3); }
-  .debt-amt-val { font-size: 15px; font-weight: 700; }
-  .debt-progress-wrap { height: 6px; background: var(--cream2); border-radius: 3px; overflow: hidden; }
-  .debt-progress { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
-  .progress-owe { background: var(--red); }
-  .progress-lend { background: var(--green); }
-  .debt-meta { display: flex; justify-content: space-between; margin-top: 6px; }
-  .debt-meta-txt { font-size: 11px; color: var(--text3); }
-  /* EMPTY STATE */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text3);
-  }
-  .empty-icon { font-size: 40px; margin-bottom: 10px; }
-  .empty-text { font-size: 14px; }
-  /* MONTH PICKER */
-  .month-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-  .month-nav-btn { background: var(--cream2); border: none; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: background 0.15s; }
-  .month-nav-btn:active { background: var(--sand); }
-  .month-label { flex: 1; text-align: center; font-size: 15px; font-weight: 600; color: var(--text); }
-  /* DEBT PAYMENT FORM */
-  .pay-input-wrap { display: flex; gap: 8px; }
-  .pay-input-wrap .form-input { flex: 1; }
-  .pay-input-wrap .btn { width: auto; padding: 12px 16px; font-size: 14px; }
-  /* TOAST */
-  .toast {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-80px);
-    background: var(--text);
-    color: white;
-    padding: 12px 20px;
-    border-radius: 30px;
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 999;
-    transition: transform 0.3s ease;
-    white-space: nowrap;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  /* TRANSFER FIELDS */
-  .transfer-arrow { text-align: center; font-size: 20px; color: var(--text3); margin: 4px 0; }
-  /* SETTINGS */
-  .setting-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--cream2);
-    cursor: pointer;
-  }
-  .setting-row:last-child { border-bottom: none; }
-  .setting-label { font-size: 15px; color: var(--text); }
-  .setting-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
-  .setting-arrow { color: var(--text3); font-size: 18px; }
-  /* FILTER BAR */
-  .filter-bar { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 12px; }
-  .filter-bar::-webkit-scrollbar { display: none; }
-  .filter-pill {
-    flex-shrink: 0;
-    padding: 5px 12px;
-    border-radius: 20px;
-    border: 1.5px solid var(--sand);
-    background: white;
-    font-family: 'Sarabun', sans-serif;
-    font-size: 13px;
-    color: var(--text2);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .filter-pill.active { background: var(--text); color: white; border-color: var(--text); }
-  /* DONUT */
-  .donut-wrap { display: flex; align-items: center; gap: 16px; }
-  .donut-svg { flex-shrink: 0; }
-  .donut-legend { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-  .legend-item { display: flex; align-items: center; gap: 6px; }
-  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .legend-name { font-size: 12px; color: var(--text2); flex: 1; }
-  .legend-pct { font-size: 12px; font-weight: 600; color: var(--text); }
-  /* WALLET SELECT */
-  .wallet-select-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px 0; }
-  .wallet-select-row::-webkit-scrollbar { display: none; }
-  .wallet-chip {
-    flex-shrink: 0;
-    padding: 8px 12px;
-    border-radius: 20px;
-    border: 1.5px solid var(--sand);
-    background: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.15s;
-  }
-  .wallet-chip.selected { border-color: var(--green); background: var(--green-bg); color: var(--green-dark); }
-  .delete-btn {
-    background: none;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    color: var(--text3);
-    padding: 4px;
-    line-height: 1;
-  }
-  .tx-actions { display: flex; gap: 4px; margin-left: 4px; }
-  /* COLOR OPTIONS */
-  .color-options { display: flex; gap: 8px; flex-wrap: wrap; }
-  .color-opt {
-    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
-    border: 2.5px solid transparent; transition: all 0.15s;
-  }
-  .color-opt.selected { border-color: var(--text); transform: scale(1.15); }
+:root {
+  --cream:#f9f5f0; --cream2:#f2ece3; --sand:#e8ddd0;
+  --text:#2d2420; --text2:#7a6a5e; --text3:#b8a898;
+  --green:#4caf7d; --green-bg:#edf7f2; --green-dk:#2d7a54;
+  --red:#e05c5c; --red-bg:#fdf0f0; --red-dk:#a83c3c;
+  --blue:#5b8fd4; --blue-bg:#eff4fc; --blue-dk:#2d5ba0;
+  --purple:#9b72d4; --purple-bg:#f3eefb; --purple-dk:#6040a0;
+  --r:14px; --rsm:8px;
+  --sh:0 2px 12px rgba(45,36,32,.08);
+  --shm:0 4px 20px rgba(45,36,32,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Sarabun',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5;max-width:480px;margin:0 auto;overflow-x:hidden}
+
+/* HEADER */
+.hdr{background:var(--cream);padding:16px 20px 0;position:sticky;top:0;z-index:100}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.logo{font-size:20px;font-weight:700;letter-spacing:-.3px}.logo span{color:var(--green-dk)}
+.hdate{font-size:13px;color:var(--text3)}
+.tabs{display:flex;gap:4px;padding:12px 0 0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:7px 16px;border-radius:20px;border:none;background:transparent;color:var(--text2);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab.on{background:var(--text);color:#fff}
+
+/* PAGES */
+.page{display:none;padding:16px 20px 100px}.page.on{display:block}
+
+/* CARD */
+.card{background:#fff;border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:12px}
+
+/* SUMMARY CARD */
+.scard{background:linear-gradient(135deg,#2d7a54,#4caf7d);border-radius:var(--r);padding:22px;color:#fff;margin-bottom:12px;position:relative;overflow:hidden}
+.scard::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:rgba(255,255,255,.1);border-radius:50%}
+.scard .lbl{font-size:12px;opacity:.8;margin-bottom:4px}
+.scard .amt{font-size:32px;font-weight:700;letter-spacing:-.5px;margin-bottom:16px}
+.srow{display:flex;gap:12px}
+.smini{flex:1;background:rgba(255,255,255,.18);border-radius:10px;padding:10px 12px}
+.smini .l{font-size:11px;opacity:.85;margin-bottom:2px}.smini .a{font-size:15px;font-weight:600}
+
+/* WALLET SCROLL */
+.wscroll{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:2px 0 8px;margin-bottom:4px}
+.wscroll::-webkit-scrollbar{display:none}
+.wcard{flex-shrink:0;background:#fff;border-radius:var(--r);padding:14px 16px;min-width:140px;box-shadow:var(--sh);cursor:pointer;transition:transform .15s}
+.wcard:active{transform:scale(.97)}
+.wicon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px}
+.wname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wbal{font-size:15px;font-weight:700;margin-top:2px}
+.wtype{font-size:11px;color:var(--text3);margin-top:1px}
+
+/* SEC TITLE */
+.stitle{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin:20px 0 10px}
+
+/* TX ROW */
+.txrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--cream2);cursor:pointer;transition:opacity .15s}
+.txrow:last-child{border-bottom:none}
+.txrow:active{opacity:.7}
+.txicon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.txinfo{flex:1;min-width:0}
+.txname{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.txsub{font-size:12px;color:var(--text3);margin-top:1px}
+.txamt{font-size:15px;font-weight:600;flex-shrink:0}
+.txamt.inc{color:var(--green-dk)}.txamt.exp{color:var(--red-dk)}.txamt.trf{color:var(--blue-dk)}.txamt.dbt{color:var(--purple-dk)}
+
+/* DATE GROUP */
+.dgrp-hdr{display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px;border-top:1px solid var(--cream2);margin-top:4px}
+.dgrp-hdr:first-child{border-top:none;margin-top:0}
+.dgrp-label{font-size:12px;font-weight:600;color:var(--text2)}
+.dgrp-total{font-size:12px;font-weight:600}
+
+/* STAT GRID */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sitem{background:#fff;border-radius:var(--r);padding:14px;box-shadow:var(--sh)}
+.sitem .lbl{font-size:12px;color:var(--text2);margin-bottom:4px}
+.sitem .val{font-size:18px;font-weight:700}
+
+/* CHART */
+.cbars{display:flex;align-items:flex-end;gap:6px;height:80px}
+.ccol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.cbar-wrap{width:100%;display:flex;justify-content:center;align-items:flex-end;height:70px;gap:2px}
+.cbar{width:10px;border-radius:4px 4px 0 0;min-height:3px;transition:height .4s ease}
+.binc{background:var(--green)}.bexp{background:var(--red)}
+.clbl{font-size:10px;color:var(--text3)}
+
+/* FORM */
+.fgrp{margin-bottom:14px}
+.flbl{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px;display:block}
+.finp{width:100%;padding:12px 14px;border:1.5px solid var(--sand);border-radius:var(--rsm);font-family:'Sarabun',sans-serif;font-size:15px;color:var(--text);background:#fff;outline:none;transition:border-color .2s;appearance:none;-webkit-appearance:none}
+.finp:focus{border-color:var(--green)}
+.amtwrap{position:relative}
+.amtwrap .cur{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:15px;pointer-events:none}
+.amtwrap .finp{padding-left:32px}
+
+/* TYPE TOGGLE */
+.ttog{display:flex;gap:6px;background:var(--cream2);border-radius:var(--rsm);padding:4px;margin-bottom:16px}
+.tbtn{flex:1;padding:9px;border:none;border-radius:6px;background:transparent;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;color:var(--text2)}
+.tbtn.on{background:#fff;box-shadow:var(--sh)}
+.tbtn.inc.on{color:var(--green-dk)}.tbtn.exp.on{color:var(--red-dk)}.tbtn.trf.on{color:var(--blue-dk)}
+
+/* CAT GRID */
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.copt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:var(--rsm);border:1.5px solid transparent;background:var(--cream2);cursor:pointer;transition:all .15s}
+.copt.on{border-color:var(--green);background:var(--green-bg)}
+.copt .em{font-size:20px}.copt .nm{font-size:11px;color:var(--text2);text-align:center;line-height:1.2}
+
+/* BTN */
+.btn{width:100%;padding:14px;border:none;border-radius:var(--rsm);font-family:'Sarabun',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:8px}
+.btn-p{background:var(--text);color:#fff}.btn-p:active{transform:scale(.98)}
+.btn-d{background:var(--red-bg);color:var(--red-dk)}
+.btn-s{background:var(--cream2);color:var(--text2)}
+
+/* FAB */
+.fab{position:fixed;bottom:80px;right:20px;width:54px;height:54px;background:var(--text);color:#fff;border:none;border-radius:50%;font-size:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shm);z-index:200;transition:transform .2s;line-height:1}
+.fab:active{transform:scale(.93)}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid var(--sand);display:flex;z-index:300;padding-bottom:env(safe-area-inset-bottom)}
+.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 0;background:none;border:none;cursor:pointer;color:var(--text3);font-family:'Sarabun',sans-serif;font-size:11px;transition:color .2s}
+.nbtn.on{color:var(--green-dk)}
+.nbtn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* MODAL */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(45,36,32,.4);z-index:400;align-items:flex-end;justify-content:center}
+.moverlay.on{display:flex}
+.modal{background:var(--cream);border-radius:var(--r) var(--r) 0 0;width:100%;max-width:480px;padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;animation:sup .3s ease}
+@keyframes sup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mhandle{width:36px;height:4px;background:var(--sand);border-radius:2px;margin:0 auto 20px}
+.mtitle{font-size:17px;font-weight:700;margin-bottom:20px}
+
+/* DEBT CARD */
+.dcard{background:#fff;border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px;cursor:pointer}
+.dcard-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.dname{font-size:15px;font-weight:600}
+.badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px}
+.badge-o{background:var(--red-bg);color:var(--red-dk)}.badge-l{background:var(--green-bg);color:var(--green-dk)}
+.damts{display:flex;gap:10px;margin-bottom:8px}
+.damt{flex:1}.damt .dl{font-size:11px;color:var(--text3)}.damt .dv{font-size:15px;font-weight:700}
+.dpbar{height:6px;background:var(--cream2);border-radius:3px;overflow:hidden}
+.dpfill{height:100%;border-radius:3px;transition:width .4s}
+.dpfill-o{background:var(--red)}.dpfill-l{background:var(--green)}
+.dmeta{display:flex;justify-content:space-between;margin-top:6px}
+.dmt{font-size:11px;color:var(--text3)}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty .ei{font-size:40px;margin-bottom:10px}.empty .et{font-size:14px}
+
+/* MONTH NAV */
+.mnav{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.mnbtn{background:var(--cream2);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background .15s}
+.mnbtn:active{background:var(--sand)}
+.mnlbl{flex:1;text-align:center;font-size:15px;font-weight:600}
+
+/* WALLET CHIPS */
+.wchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+.wchips::-webkit-scrollbar{display:none}
+.wchip{flex-shrink:0;padding:8px 12px;border-radius:20px;border:1.5px solid var(--sand);background:#fff;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;transition:all .15s;font-family:'Sarabun',sans-serif}
+.wchip.on{border-color:var(--green);background:var(--green-bg);color:var(--green-dk)}
+
+/* FILTER */
+.fbar{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px}
+.fbar::-webkit-scrollbar{display:none}
+.fpill{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1.5px solid var(--sand);background:#fff;font-family:'Sarabun',sans-serif;font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s}
+.fpill.on{background:var(--text);color:#fff;border-color:var(--text)}
+
+/* CAT BARS */
+.catrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.catbar-wrap{width:100%;height:4px;background:var(--cream2);border-radius:2px;margin-top:3px}
+.catbar-fill{height:100%;border-radius:2px;transition:width .4s}
+
+/* COLOR PICKER */
+.cpicks{display:flex;gap:8px;flex-wrap:wrap}
+.cpick{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:all .15s}
+.cpick.on{border-color:var(--text);transform:scale(1.15)}
+
+/* SEARCH */
+.srchwrap{position:relative;margin-bottom:10px}
+.srchwrap .icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px;pointer-events:none}
+.srchwrap .finp{padding-left:36px}
+
+/* TOAST */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--text);color:#fff;padding:12px 20px;border-radius:30px;font-size:14px;font-weight:500;z-index:999;transition:transform .3s;white-space:nowrap;pointer-events:none}
+.toast.on{transform:translateX(-50%) translateY(0)}
+
+.del-btn{background:none;border:none;font-size:16px;cursor:pointer;color:var(--text3);padding:4px;line-height:1}
+.transfer-arrow{text-align:center;font-size:20px;color:var(--text3);margin:4px 0}
 </style>
 </head>
 <body>
 
-<div class="app-header">
-  <div class="header-top">
-    <div class="app-logo">เงิน<span>.</span>ฉัน</div>
-    <div class="header-date" id="headerDate"></div>
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="logo">เงิน<span>.</span>ฉัน</div>
+    <div class="hdate" id="hdate"></div>
   </div>
-  <div class="tab-bar">
-    <button class="tab-btn active" onclick="showTab('home')">หน้าหลัก</button>
-    <button class="tab-btn" onclick="showTab('history')">รายการ</button>
-    <button class="tab-btn" onclick="showTab('wallets')">กระเป๋า</button>
-    <button class="tab-btn" onclick="showTab('debts')">หนี้สิน</button>
-    <button class="tab-btn" onclick="showTab('analytics')">วิเคราะห์</button>
-  </div>
-</div>
-
-<!-- HOME PAGE -->
-<div id="page-home" class="page active">
-  <div class="summary-card">
-    <div class="summary-label">ยอดรวมทุกกระเป๋า</div>
-    <div class="summary-amount" id="totalBalance">฿0</div>
-    <div class="summary-row">
-      <div class="summary-mini">
-        <div class="label">รายรับเดือนนี้</div>
-        <div class="amount" id="monthIncome">฿0</div>
-      </div>
-      <div class="summary-mini">
-        <div class="label">รายจ่ายเดือนนี้</div>
-        <div class="amount" id="monthExpense">฿0</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-title">กระเป๋าตังค์</div>
-  <div class="wallet-scroll" id="homeWallets"></div>
-
-  <div style="display:flex;align-items:center;justify-content:space-between">
-    <div class="section-title" style="margin-bottom:0">รายการล่าสุด</div>
-  </div>
-  <div class="card" style="padding: 4px 18px;">
-    <div id="recentTx"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">ยังไม่มีรายการ</div></div></div>
+  <div class="tabs">
+    <button class="tab on" data-tab="home">หน้าหลัก</button>
+    <button class="tab" data-tab="history">รายการ</button>
+    <button class="tab" data-tab="wallets">กระเป๋า</button>
+    <button class="tab" data-tab="debts">หนี้สิน</button>
+    <button class="tab" data-tab="analytics">วิเคราะห์</button>
   </div>
 </div>
 
-<!-- HISTORY PAGE -->
-<div id="page-history" class="page">
-  <div class="month-nav">
-    <button class="month-nav-btn" onclick="changeMonth(-1)">‹</button>
-    <div class="month-label" id="monthLabel"></div>
-    <button class="month-nav-btn" onclick="changeMonth(1)">›</button>
-  </div>
-
-  <!-- สรุปยอดเดือน -->
-  <div class="stat-grid" style="margin-bottom:12px">
-    <div class="stat-item" style="background:var(--green-bg)">
-      <div class="stat-label" style="color:var(--green-dark)">รายรับ</div>
-      <div class="stat-value" style="color:var(--green-dark);font-size:16px" id="histIncome">฿0</div>
-    </div>
-    <div class="stat-item" style="background:var(--red-bg)">
-      <div class="stat-label" style="color:var(--red-dark)">รายจ่าย</div>
-      <div class="stat-value" style="color:var(--red-dark);font-size:16px" id="histExpense">฿0</div>
+<!-- HOME -->
+<div id="pg-home" class="page on">
+  <div class="scard">
+    <div class="lbl">ยอดรวมทุกกระเป๋า</div>
+    <div class="amt" id="totalBal">฿0</div>
+    <div class="srow">
+      <div class="smini"><div class="l">รายรับเดือนนี้</div><div class="a" id="mInc">฿0</div></div>
+      <div class="smini"><div class="l">รายจ่ายเดือนนี้</div><div class="a" id="mExp">฿0</div></div>
     </div>
   </div>
+  <div class="stitle">กระเป๋าตังค์</div>
+  <div class="wscroll" id="homeWallets"></div>
+  <div class="stitle">รายการล่าสุด</div>
+  <div class="card" style="padding:4px 18px"><div id="recentTx"></div></div>
+</div>
 
-  <!-- Search -->
-  <div style="position:relative;margin-bottom:10px">
-    <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px">🔍</span>
-    <input class="form-input" type="text" id="histSearch" placeholder="ค้นหารายการ..." style="padding-left:36px" oninput="renderHistory()">
+<!-- HISTORY -->
+<div id="pg-history" class="page">
+  <div class="mnav">
+    <button class="mnbtn" id="histPrev">‹</button>
+    <div class="mnlbl" id="histMonthLbl"></div>
+    <button class="mnbtn" id="histNext">›</button>
   </div>
-
-  <!-- Filter + Sort -->
+  <div class="sgrid" style="margin-bottom:12px">
+    <div class="sitem" style="background:var(--green-bg)">
+      <div class="lbl" style="color:var(--green-dk)">รายรับ</div>
+      <div class="val" style="color:var(--green-dk);font-size:16px" id="histInc">฿0</div>
+    </div>
+    <div class="sitem" style="background:var(--red-bg)">
+      <div class="lbl" style="color:var(--red-dk)">รายจ่าย</div>
+      <div class="val" style="color:var(--red-dk);font-size:16px" id="histExp">฿0</div>
+    </div>
+  </div>
+  <div class="srchwrap">
+    <span class="icon">🔍</span>
+    <input class="finp" type="text" id="histSearch" placeholder="ค้นหารายการ...">
+  </div>
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-    <div class="filter-bar" style="flex:1;margin-bottom:0">
-      <button class="filter-pill active" onclick="setFilter(this,'all')">ทั้งหมด</button>
-      <button class="filter-pill" onclick="setFilter(this,'income')">รายรับ</button>
-      <button class="filter-pill" onclick="setFilter(this,'expense')">รายจ่าย</button>
-      <button class="filter-pill" onclick="setFilter(this,'transfer')">โอน</button>
+    <div class="fbar" style="flex:1;margin-bottom:0">
+      <button class="fpill on" data-hf="all">ทั้งหมด</button>
+      <button class="fpill" data-hf="income">รายรับ</button>
+      <button class="fpill" data-hf="expense">รายจ่าย</button>
+      <button class="fpill" data-hf="transfer">โอน</button>
     </div>
-    <select class="form-input form-select" id="histSort" onchange="renderHistory()" style="width:auto;padding:6px 10px;font-size:13px;flex-shrink:0">
+    <select class="finp" id="histSort" style="width:auto;padding:6px 10px;font-size:13px;flex-shrink:0">
       <option value="date_desc">ล่าสุด</option>
       <option value="date_asc">เก่าสุด</option>
-      <option value="amount_desc">มากสุด</option>
-      <option value="amount_asc">น้อยสุด</option>
+      <option value="amt_desc">มากสุด</option>
+      <option value="amt_asc">น้อยสุด</option>
     </select>
   </div>
-
-  <div class="card" style="padding: 4px 18px;">
-    <div id="historyList"></div>
-  </div>
+  <div class="card" style="padding:4px 18px"><div id="histList"></div></div>
 </div>
 
-<!-- WALLETS PAGE -->
-<div id="page-wallets" class="page">
-  <div class="stat-grid" style="margin-bottom:16px">
-    <div class="stat-item">
-      <div class="stat-label">ยอดรวมทั้งหมด</div>
-      <div class="stat-value" id="walletTotal">฿0</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">จำนวนกระเป๋า</div>
-      <div class="stat-value" id="walletCount">0</div>
-    </div>
+<!-- WALLETS -->
+<div id="pg-wallets" class="page">
+  <div class="sgrid" style="margin-bottom:16px">
+    <div class="sitem"><div class="lbl">ยอดรวม</div><div class="val" id="wTotal">฿0</div></div>
+    <div class="sitem"><div class="lbl">จำนวนกระเป๋า</div><div class="val" id="wCount">0</div></div>
   </div>
   <div id="walletList"></div>
-  <button class="btn btn-secondary" style="margin-top:8px" onclick="openAddWallet()">+ เพิ่มกระเป๋า</button>
+  <button class="btn btn-s" style="margin-top:4px" id="addWalletBtn">+ เพิ่มกระเป๋า</button>
 </div>
 
-<!-- DEBTS PAGE -->
-<div id="page-debts" class="page">
-  <div class="stat-grid" style="margin-bottom:16px">
-    <div class="stat-item">
-      <div class="stat-label">ยอดที่ต้องจ่าย</div>
-      <div class="stat-value" style="color:var(--red-dark)" id="totalOwe">฿0</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">ยอดที่ต้องรับ</div>
-      <div class="stat-value" style="color:var(--green-dark)" id="totalLend">฿0</div>
-    </div>
+<!-- DEBTS -->
+<div id="pg-debts" class="page">
+  <div class="sgrid" style="margin-bottom:16px">
+    <div class="sitem"><div class="lbl">ต้องจ่าย</div><div class="val" style="color:var(--red-dk)" id="dOwe">฿0</div></div>
+    <div class="sitem"><div class="lbl">ต้องรับ</div><div class="val" style="color:var(--green-dk)" id="dLend">฿0</div></div>
   </div>
-  <div class="filter-bar">
-    <button class="filter-pill active" onclick="setDebtFilter(this,'all')">ทั้งหมด</button>
-    <button class="filter-pill" onclick="setDebtFilter(this,'owe')">เราเป็นหนี้</button>
-    <button class="filter-pill" onclick="setDebtFilter(this,'lend')">คนอื่นเป็นหนี้</button>
+  <div class="fbar">
+    <button class="fpill on" data-df="all">ทั้งหมด</button>
+    <button class="fpill" data-df="owe">เราเป็นหนี้</button>
+    <button class="fpill" data-df="lend">คนอื่นยืม</button>
   </div>
   <div id="debtList"></div>
-  <div class="empty-state" id="debtEmpty" style="display:none">
-    <div class="empty-icon">🤝</div>
-    <div class="empty-text">ไม่มีหนี้สิน ดีมาก!</div>
-  </div>
+  <div class="empty" id="debtEmpty" style="display:none"><div class="ei">🤝</div><div class="et">ไม่มีหนี้สิน ดีมาก!</div></div>
 </div>
 
-<!-- ANALYTICS PAGE -->
-<div id="page-analytics" class="page">
-  <div class="month-nav">
-    <button class="month-nav-btn" onclick="changeAnalyticsMonth(-1)">‹</button>
-    <div class="month-label" id="analyticsMonthLabel"></div>
-    <button class="month-nav-btn" onclick="changeAnalyticsMonth(1)">›</button>
+<!-- ANALYTICS -->
+<div id="pg-analytics" class="page">
+  <div class="mnav">
+    <button class="mnbtn" id="anaPrev">‹</button>
+    <div class="mnlbl" id="anaMonthLbl"></div>
+    <button class="mnbtn" id="anaNext">›</button>
   </div>
-
-  <div class="stat-grid" style="margin-bottom:16px">
-    <div class="stat-item">
-      <div class="stat-label">รายรับ</div>
-      <div class="stat-value" style="color:var(--green-dark)" id="anaIncome">฿0</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">รายจ่าย</div>
-      <div class="stat-value" style="color:var(--red-dark)" id="anaExpense">฿0</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">คงเหลือ</div>
-      <div class="stat-value" id="anaSaving">฿0</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">อัตราออมเงิน</div>
-      <div class="stat-value" id="anaSaveRate">0%</div>
-    </div>
+  <div class="sgrid" style="margin-bottom:16px">
+    <div class="sitem"><div class="lbl">รายรับ</div><div class="val" style="color:var(--green-dk);font-size:16px" id="anaInc">฿0</div></div>
+    <div class="sitem"><div class="lbl">รายจ่าย</div><div class="val" style="color:var(--red-dk);font-size:16px" id="anaExp">฿0</div></div>
+    <div class="sitem"><div class="lbl">คงเหลือ</div><div class="val" id="anaSave">฿0</div></div>
+    <div class="sitem"><div class="lbl">อัตราออม</div><div class="val" id="anaRate">0%</div></div>
   </div>
-
   <div class="card">
     <div style="font-size:14px;font-weight:600;margin-bottom:12px">รายรับ vs รายจ่าย 6 เดือน</div>
-    <div id="barChart"></div>
+    <div id="anaChart"></div>
     <div style="display:flex;gap:16px;margin-top:10px">
       <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:50%;background:var(--green)"></div><div style="font-size:12px;color:var(--text2)">รายรับ</div></div>
       <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:50%;background:var(--red)"></div><div style="font-size:12px;color:var(--text2)">รายจ่าย</div></div>
     </div>
   </div>
-
-  <div class="card">
-    <div style="font-size:14px;font-weight:600;margin-bottom:12px">หมวดรายจ่าย</div>
-    <div id="expenseCats"></div>
-  </div>
-
-  <div class="card">
-    <div style="font-size:14px;font-weight:600;margin-bottom:12px">หมวดรายรับ</div>
-    <div id="incomeCats"></div>
-  </div>
+  <div class="card"><div style="font-size:14px;font-weight:600;margin-bottom:12px">หมวดรายจ่าย</div><div id="anaExpCat"></div></div>
+  <div class="card"><div style="font-size:14px;font-weight:600;margin-bottom:12px">หมวดรายรับ</div><div id="anaIncCat"></div></div>
 </div>
 
 <!-- FAB -->
-<button class="fab" onclick="openAddTx()">+</button>
+<button class="fab" id="fab">+</button>
 
 <!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <button class="nav-btn active" id="nav-home" onclick="showTab('home')">
-    <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
-    หน้าหลัก
-  </button>
-  <button class="nav-btn" id="nav-history" onclick="showTab('history')">
-    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-    รายการ
-  </button>
-  <button class="nav-btn" id="nav-wallets" onclick="showTab('wallets')">
-    <svg viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
-    กระเป๋า
-  </button>
-  <button class="nav-btn" id="nav-debts" onclick="showTab('debts')">
-    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-    หนี้สิน
-  </button>
-  <button class="nav-btn" id="nav-analytics" onclick="showTab('analytics')">
-    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    วิเคราะห์
-  </button>
+<div class="bnav">
+  <button class="nbtn on" data-tab="home"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>หน้าหลัก</button>
+  <button class="nbtn" data-tab="history"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>รายการ</button>
+  <button class="nbtn" data-tab="wallets"><svg viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>กระเป๋า</button>
+  <button class="nbtn" data-tab="debts"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>หนี้สิน</button>
+  <button class="nbtn" data-tab="analytics"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>วิเคราะห์</button>
 </div>
 
-<!-- ADD TRANSACTION MODAL -->
-<div class="modal-overlay" id="addTxModal" onclick="closeOnOverlay(event,'addTxModal')">
+<!-- MODAL: ADD TX -->
+<div class="moverlay" id="mTx">
   <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="txModalTitle">บันทึกรายการ</div>
-    <div class="type-toggle" style="margin-bottom:16px">
-      <button class="type-btn income active" onclick="setTxType('income')">รายรับ</button>
-      <button class="type-btn expense" onclick="setTxType('expense')">รายจ่าย</button>
-      <button class="type-btn transfer" onclick="setTxType('transfer')">โอน</button>
+    <div class="mhandle"></div>
+    <div class="mtitle" id="mTxTitle">บันทึกรายการ</div>
+    <div class="ttog">
+      <button class="tbtn inc on" data-type="income">รายรับ</button>
+      <button class="tbtn exp" data-type="expense">รายจ่าย</button>
+      <button class="tbtn trf" data-type="transfer">โอน</button>
     </div>
-    <div class="form-group">
-      <label class="form-label">จำนวนเงิน</label>
-      <div class="amount-input-wrap">
-        <span class="currency">฿</span>
-        <input class="form-input" type="number" id="txAmount" placeholder="0.00" inputmode="decimal">
-      </div>
+    <div class="fgrp"><label class="flbl">จำนวนเงิน</label>
+      <div class="amtwrap"><span class="cur">฿</span><input class="finp" type="number" id="txAmt" placeholder="0.00" inputmode="decimal"></div>
     </div>
-    <div class="form-group">
-      <label class="form-label">รายละเอียด</label>
-      <input class="form-input" type="text" id="txNote" placeholder="เช่น ข้าวกลางวัน, เงินเดือน">
+    <div class="fgrp"><label class="flbl">รายละเอียด</label>
+      <input class="finp" type="text" id="txNote" placeholder="เช่น ข้าวกลางวัน, เงินเดือน">
     </div>
-    <div class="form-group" id="txDateGroup">
-      <label class="form-label">วันที่</label>
-      <input class="form-input" type="date" id="txDate">
+    <div class="fgrp"><label class="flbl">วันที่</label>
+      <input class="finp" type="date" id="txDate">
     </div>
-    <div class="form-group" id="catSection">
-      <label class="form-label">หมวดหมู่</label>
-      <div class="cat-grid" id="catGrid"></div>
+    <div class="fgrp" id="catSec"><label class="flbl">หมวดหมู่</label>
+      <div class="cgrid" id="catGrid"></div>
     </div>
-    <div class="form-group">
-      <label class="form-label" id="walletLabel">กระเป๋า</label>
-      <div class="wallet-select-row" id="walletSelectRow"></div>
+    <div class="fgrp"><label class="flbl" id="wLbl">กระเป๋า</label>
+      <div class="wchips" id="wChips"></div>
     </div>
-    <div class="form-group" id="toWalletSection" style="display:none">
+    <div class="fgrp" id="toWSec" style="display:none">
       <div class="transfer-arrow">↓</div>
-      <label class="form-label">ไปยังกระเป๋า</label>
-      <div class="wallet-select-row" id="toWalletSelectRow"></div>
+      <label class="flbl">ไปยังกระเป๋า</label>
+      <div class="wchips" id="toWChips"></div>
     </div>
-    <button class="btn btn-primary" onclick="saveTx()" style="margin-top:8px">บันทึก</button>
+    <button class="btn btn-p" id="saveTxBtn">บันทึก</button>
   </div>
 </div>
 
-<!-- ADD WALLET MODAL -->
-<div class="modal-overlay" id="addWalletModal" onclick="closeOnOverlay(event,'addWalletModal')">
+<!-- MODAL: ADD WALLET -->
+<div class="moverlay" id="mWallet">
   <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">เพิ่มกระเป๋าตังค์</div>
-    <div class="form-group">
-      <label class="form-label">ชื่อกระเป๋า</label>
-      <input class="form-input" type="text" id="walletName" placeholder="เช่น กระเป๋าหลัก, ธนาคาร KBank">
+    <div class="mhandle"></div>
+    <div class="mtitle">เพิ่มกระเป๋าตังค์</div>
+    <div class="fgrp"><label class="flbl">ชื่อกระเป๋า</label>
+      <input class="finp" type="text" id="wName" placeholder="เช่น กระเป๋าหลัก, KBank">
     </div>
-    <div class="form-group">
-      <label class="form-label">ประเภท</label>
-      <select class="form-input form-select" id="walletType">
+    <div class="fgrp"><label class="flbl">ประเภท</label>
+      <select class="finp" id="wType">
         <option value="cash">💵 เงินสด</option>
-        <option value="bank">🏦 บัญชีธนาคาร</option>
+        <option value="bank">🏦 ธนาคาร</option>
         <option value="saving">🐷 ออมสิน</option>
         <option value="credit">💳 บัตรเครดิต</option>
         <option value="ewallet">📱 E-Wallet</option>
       </select>
     </div>
-    <div class="form-group">
-      <label class="form-label">ยอดเงินเริ่มต้น</label>
-      <div class="amount-input-wrap">
-        <span class="currency">฿</span>
-        <input class="form-input" type="number" id="walletBalance" placeholder="0" inputmode="decimal">
-      </div>
+    <div class="fgrp"><label class="flbl">ยอดเงินเริ่มต้น</label>
+      <div class="amtwrap"><span class="cur">฿</span><input class="finp" type="number" id="wBal" placeholder="0" inputmode="decimal"></div>
     </div>
-    <div class="form-group">
-      <label class="form-label">สี</label>
-      <div class="color-options" id="colorOptions"></div>
+    <div class="fgrp"><label class="flbl">สี</label>
+      <div class="cpicks" id="cpicks"></div>
     </div>
-    <button class="btn btn-primary" onclick="saveWallet()" style="margin-top:8px">เพิ่มกระเป๋า</button>
+    <button class="btn btn-p" id="saveWBtn">เพิ่มกระเป๋า</button>
   </div>
 </div>
 
-<!-- ADD DEBT MODAL -->
-<div class="modal-overlay" id="addDebtModal" onclick="closeOnOverlay(event,'addDebtModal')">
+<!-- MODAL: ADD DEBT -->
+<div class="moverlay" id="mDebt">
   <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">บันทึกหนี้สิน</div>
-    <div class="type-toggle" style="margin-bottom:16px">
-      <button class="type-btn expense active" onclick="setDebtType('owe')">เราเป็นหนี้</button>
-      <button class="type-btn income" onclick="setDebtType('lend')">ให้คนอื่นยืม</button>
+    <div class="mhandle"></div>
+    <div class="mtitle">บันทึกหนี้สิน</div>
+    <div class="ttog">
+      <button class="tbtn exp on" data-dtype="owe">เราเป็นหนี้</button>
+      <button class="tbtn inc" data-dtype="lend">ให้คนอื่นยืม</button>
     </div>
-    <div class="form-group">
-      <label class="form-label" id="debtPersonLabel">ชื่อเจ้าหนี้</label>
-      <input class="form-input" type="text" id="debtPerson" placeholder="ชื่อคน / สถาบัน">
+    <div class="fgrp"><label class="flbl" id="dPersonLbl">ชื่อเจ้าหนี้</label>
+      <input class="finp" type="text" id="dPerson" placeholder="ชื่อคน / สถาบัน">
     </div>
-    <div class="form-group">
-      <label class="form-label">จำนวนเงินต้น</label>
-      <div class="amount-input-wrap">
-        <span class="currency">฿</span>
-        <input class="form-input" type="number" id="debtAmount" placeholder="0" inputmode="decimal">
-      </div>
+    <div class="fgrp"><label class="flbl">จำนวนเงิน</label>
+      <div class="amtwrap"><span class="cur">฿</span><input class="finp" type="number" id="dAmt" placeholder="0" inputmode="decimal"></div>
     </div>
-    <div class="form-group">
-      <label class="form-label">หมายเหตุ</label>
-      <input class="form-input" type="text" id="debtNote" placeholder="เหตุผล / รายละเอียด">
+    <div class="fgrp"><label class="flbl">หมายเหตุ</label>
+      <input class="finp" type="text" id="dNote" placeholder="เหตุผล / รายละเอียด">
     </div>
-    <div class="form-group">
-      <label class="form-label">วันครบกำหนด (ถ้ามี)</label>
-      <input class="form-input" type="date" id="debtDue">
+    <div class="fgrp"><label class="flbl">วันครบกำหนด</label>
+      <input class="finp" type="date" id="dDue">
     </div>
-    <button class="btn btn-primary" onclick="saveDebt()" style="margin-top:8px">บันทึก</button>
+    <button class="btn btn-p" id="saveDebtBtn">บันทึก</button>
   </div>
 </div>
 
-<!-- TX DETAIL MODAL -->
-<div class="modal-overlay" id="txDetailModal" onclick="closeOnOverlay(event,'txDetailModal')">
+<!-- MODAL: TX DETAIL -->
+<div class="moverlay" id="mTxDetail">
   <div class="modal">
-    <div class="modal-handle"></div>
+    <div class="mhandle"></div>
     <div id="txDetailContent"></div>
-    <button class="btn btn-secondary" onclick="editTx(currentTxId)" style="margin-top:8px">✏️ แก้ไข</button>
-    <button class="btn btn-danger" onclick="deleteTx()" style="margin-top:8px">ลบรายการ</button>
-    <button class="btn btn-secondary" onclick="closeModal('txDetailModal')" style="margin-top:8px">ปิด</button>
+    <button class="btn btn-s" id="editTxBtn">✏️ แก้ไข</button>
+    <button class="btn btn-d" id="delTxBtn">ลบรายการ</button>
+    <button class="btn btn-s" id="closeTxDetailBtn">ปิด</button>
   </div>
 </div>
 
-<!-- DEBT DETAIL MODAL -->
-<div class="modal-overlay" id="debtDetailModal" onclick="closeOnOverlay(event,'debtDetailModal')">
+<!-- MODAL: DEBT DETAIL -->
+<div class="moverlay" id="mDebtDetail">
   <div class="modal">
-    <div class="modal-handle"></div>
+    <div class="mhandle"></div>
     <div id="debtDetailContent"></div>
-    <div class="form-group" style="margin-top:16px">
-      <label class="form-label">บันทึกการชำระ</label>
-      <div class="pay-input-wrap">
-        <div class="amount-input-wrap" style="flex:1">
-          <span class="currency">฿</span>
-          <input class="form-input" type="number" id="payAmount" placeholder="จำนวน" inputmode="decimal">
-        </div>
-        <button class="btn btn-primary" style="width:auto;padding:12px 16px;font-size:14px" onclick="payDebt()">ชำระ</button>
+    <div class="fgrp" style="margin-top:16px"><label class="flbl">บันทึกการชำระ</label>
+      <div style="display:flex;gap:8px">
+        <div class="amtwrap" style="flex:1"><span class="cur">฿</span><input class="finp" type="number" id="payAmt" placeholder="จำนวน" inputmode="decimal"></div>
+        <button class="btn btn-p" id="payBtn" style="width:auto;padding:12px 16px;font-size:14px;margin-top:0">ชำระ</button>
       </div>
     </div>
-    <button class="btn btn-danger" onclick="deleteDebt()" style="margin-top:4px">ลบรายการหนี้</button>
-    <button class="btn btn-secondary" onclick="closeModal('debtDetailModal')" style="margin-top:8px">ปิด</button>
+    <button class="btn btn-d" id="delDebtBtn">ลบรายการหนี้</button>
+    <button class="btn btn-s" id="closeDebtDetailBtn">ปิด</button>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-// === DATA ===
-let data = {
-  wallets: [],
-  transactions: [],
-  debts: []
-};
-
-let currentTxType = 'income';
-let selectedWalletId = null;
-let selectedToWalletId = null;
-let selectedCat = null;
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
-let analyticsMonth = new Date().getMonth();
-let analyticsYear = new Date().getFullYear();
-let historyFilter = 'all';
-let debtFilter = 'all';
-let currentDebtType = 'owe';
-let editTxId = null;
-let editDebtId = null;
-
+// ============================================================
+// DATA
+// ============================================================
 const CATS = {
-  expense: [
-    {id:'food',emoji:'🍜',name:'อาหาร'},
-    {id:'transport',emoji:'🚗',name:'เดินทาง'},
-    {id:'shop',emoji:'🛍️',name:'ช้อปปิ้ง'},
-    {id:'health',emoji:'💊',name:'สุขภาพ'},
-    {id:'home',emoji:'🏠',name:'บ้าน'},
-    {id:'entertainment',emoji:'🎬',name:'บันเทิง'},
-    {id:'education',emoji:'📚',name:'การศึกษา'},
-    {id:'utility',emoji:'💡',name:'ค่าน้ำไฟ'},
-    {id:'beauty',emoji:'💄',name:'ความงาม'},
-    {id:'pet',emoji:'🐾',name:'สัตว์เลี้ยง'},
-    {id:'insurance',emoji:'🛡️',name:'ประกัน'},
-    {id:'other_expense',emoji:'📦',name:'อื่นๆ'},
+  expense:[
+    {id:'food',e:'🍜',n:'อาหาร'},{id:'transport',e:'🚗',n:'เดินทาง'},
+    {id:'shop',e:'🛍️',n:'ช้อปปิ้ง'},{id:'health',e:'💊',n:'สุขภาพ'},
+    {id:'home',e:'🏠',n:'บ้าน'},{id:'entertainment',e:'🎬',n:'บันเทิง'},
+    {id:'education',e:'📚',n:'การศึกษา'},{id:'utility',e:'💡',n:'ค่าน้ำไฟ'},
+    {id:'beauty',e:'💄',n:'ความงาม'},{id:'pet',e:'🐾',n:'สัตว์เลี้ยง'},
+    {id:'insurance',e:'🛡️',n:'ประกัน'},{id:'other_e',e:'📦',n:'อื่นๆ'},
   ],
-  income: [
-    {id:'salary',emoji:'💼',name:'เงินเดือน'},
-    {id:'bonus',emoji:'🎁',name:'โบนัส'},
-    {id:'freelance',emoji:'💻',name:'ฟรีแลนซ์'},
-    {id:'investment',emoji:'📈',name:'ลงทุน'},
-    {id:'selling',emoji:'🏪',name:'ขายของ'},
-    {id:'rental',emoji:'🏢',name:'ค่าเช่า'},
-    {id:'gift',emoji:'🎀',name:'ของขวัญ'},
-    {id:'other_income',emoji:'✨',name:'อื่นๆ'},
+  income:[
+    {id:'salary',e:'💼',n:'เงินเดือน'},{id:'bonus',e:'🎁',n:'โบนัส'},
+    {id:'freelance',e:'💻',n:'ฟรีแลนซ์'},{id:'invest',e:'📈',n:'ลงทุน'},
+    {id:'sell',e:'🏪',n:'ขายของ'},{id:'rent',e:'🏢',n:'ค่าเช่า'},
+    {id:'gift',e:'🎀',n:'ของขวัญ'},{id:'other_i',e:'✨',n:'อื่นๆ'},
   ]
 };
-
-const WALLET_ICONS = {cash:'💵',bank:'🏦',saving:'🐷',credit:'💳',ewallet:'📱'};
+const WICONS = {cash:'💵',bank:'🏦',saving:'🐷',credit:'💳',ewallet:'📱'};
 const COLORS = ['#4caf7d','#5b8fd4','#e09640','#9b72d4','#e05c5c','#e07b9b','#4bb8c4','#8fae52','#a07050','#7a7a7a'];
+const MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+let db = {wallets:[],transactions:[],debts:[]};
+let histM = new Date().getMonth(), histY = new Date().getFullYear();
+let anaM  = new Date().getMonth(), anaY  = new Date().getFullYear();
+let histFilter = 'all';
+let debtFilter = 'all';
+let txType = 'expense';
+let debtType = 'owe';
+let selW = null, selToW = null, selCat = null;
+let selColor = COLORS[0];
+let editTxId = null, curTxId = null, curDebtId = null;
 
 function load() {
-  const saved = localStorage.getItem('moneyapp_v2');
-  if (saved) { try { data = JSON.parse(saved); } catch(e){} }
-  if (!data.wallets) data.wallets = [];
-  if (!data.transactions) data.transactions = [];
-  if (!data.debts) data.debts = [];
-  // seed default wallet if empty
-  if (data.wallets.length === 0) {
-    data.wallets.push({ id: uid(), name: 'กระเป๋าหลัก', type: 'cash', balance: 0, color: '#4caf7d', created: new Date().toISOString() });
-  }
+  try { const s = localStorage.getItem('mapp3'); if(s) db = JSON.parse(s); } catch(e){}
+  if(!db.wallets) db.wallets=[];
+  if(!db.transactions) db.transactions=[];
+  if(!db.debts) db.debts=[];
+  if(db.wallets.length===0) db.wallets.push({id:uid(),name:'กระเป๋าหลัก',type:'cash',balance:0,color:'#4caf7d',created:now()});
 }
-function save() { localStorage.setItem('moneyapp_v2', JSON.stringify(data)); }
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function fmt(n) { return '฿' + Math.abs(n).toLocaleString('th-TH', {minimumFractionDigits:0,maximumFractionDigits:2}); }
-function fmtSigned(n) { return (n>=0?'+':'−') + fmt(n); }
+function save() { localStorage.setItem('mapp3', JSON.stringify(db)); }
+function uid() { return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function now() { return new Date().toISOString(); }
+function fmt(n) { return '฿'+Math.abs(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2}); }
+function today() { return new Date().toISOString().split('T')[0]; }
+function catById(id) {
+  return [...CATS.expense,...CATS.income].find(c=>c.id===id)||null;
+}
+function wTypeName(t) { return {cash:'เงินสด',bank:'ธนาคาร',saving:'ออมสิน',credit:'บัตรเครดิต',ewallet:'E-Wallet'}[t]||t; }
 
-// === INIT ===
+// ============================================================
+// INIT
+// ============================================================
 load();
-setHeaderDate();
+document.getElementById('hdate').textContent = new Date().toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});
 renderAll();
-
-function setHeaderDate() {
-  const d = new Date();
-  document.getElementById('headerDate').textContent = d.toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});
-}
+bindEvents();
 
 function renderAll() {
   renderHome();
@@ -1029,643 +514,534 @@ function renderAll() {
   renderAnalytics();
 }
 
-// === TABS ===
+// ============================================================
+// EVENTS — all in one place, no inline onclick
+// ============================================================
+function bindEvents() {
+  // tabs (top + bottom nav)
+  document.querySelectorAll('[data-tab]').forEach(el => {
+    el.addEventListener('click', () => showTab(el.dataset.tab));
+  });
+
+  // FAB
+  document.getElementById('fab').addEventListener('click', () => {
+    const active = document.querySelector('.page.on');
+    if(active && active.id === 'pg-debts') openDebtModal();
+    else openTxModal();
+  });
+
+  // history month nav
+  document.getElementById('histPrev').addEventListener('click', () => { histM--; if(histM<0){histM=11;histY--;} renderHistory(); });
+  document.getElementById('histNext').addEventListener('click', () => { histM++; if(histM>11){histM=0;histY++;} renderHistory(); });
+
+  // history search + sort
+  document.getElementById('histSearch').addEventListener('input', renderHistory);
+  document.getElementById('histSort').addEventListener('change', renderHistory);
+
+  // history filter pills
+  document.querySelectorAll('[data-hf]').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('[data-hf]').forEach(e=>e.classList.remove('on'));
+      el.classList.add('on');
+      histFilter = el.dataset.hf;
+      renderHistory();
+    });
+  });
+
+  // debt filter pills
+  document.querySelectorAll('[data-df]').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('[data-df]').forEach(e=>e.classList.remove('on'));
+      el.classList.add('on');
+      debtFilter = el.dataset.df;
+      renderDebts();
+    });
+  });
+
+  // analytics month nav
+  document.getElementById('anaPrev').addEventListener('click', () => { anaM--; if(anaM<0){anaM=11;anaY--;} renderAnalytics(); });
+  document.getElementById('anaNext').addEventListener('click', () => { anaM++; if(anaM>11){anaM=0;anaY++;} renderAnalytics(); });
+
+  // tx modal type toggle
+  document.querySelectorAll('#mTx .tbtn').forEach(el => {
+    el.addEventListener('click', () => setTxType(el.dataset.type));
+  });
+
+  // debt modal type toggle
+  document.querySelectorAll('#mDebt .tbtn').forEach(el => {
+    el.addEventListener('click', () => setDebtType(el.dataset.dtype));
+  });
+
+  // save tx
+  document.getElementById('saveTxBtn').addEventListener('click', saveTx);
+
+  // add wallet btn
+  document.getElementById('addWalletBtn').addEventListener('click', openWalletModal);
+
+  // save wallet
+  document.getElementById('saveWBtn').addEventListener('click', saveWallet);
+
+  // save debt
+  document.getElementById('saveDebtBtn').addEventListener('click', saveDebt);
+
+  // tx detail buttons
+  document.getElementById('editTxBtn').addEventListener('click', () => { closeModal('mTxDetail'); editTx(curTxId); });
+  document.getElementById('delTxBtn').addEventListener('click', deleteTx);
+  document.getElementById('closeTxDetailBtn').addEventListener('click', () => closeModal('mTxDetail'));
+
+  // debt detail buttons
+  document.getElementById('payBtn').addEventListener('click', payDebt);
+  document.getElementById('delDebtBtn').addEventListener('click', deleteDebt);
+  document.getElementById('closeDebtDetailBtn').addEventListener('click', () => closeModal('mDebtDetail'));
+
+  // close modal on overlay click
+  document.querySelectorAll('.moverlay').forEach(el => {
+    el.addEventListener('click', e => { if(e.target===el) closeModal(el.id); });
+  });
+}
+
+// ============================================================
+// TABS
+// ============================================================
 function showTab(tab) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+tab).classList.add('active');
-  const tabs = ['home','history','wallets','debts','analytics'];
-  const idx = tabs.indexOf(tab);
-  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
-  document.getElementById('nav-'+tab).classList.add('active');
-  if(tab==='home') renderHome();
-  if(tab==='history') renderHistory();
-  if(tab==='wallets') renderWallets();
-  if(tab==='debts') renderDebts();
-  if(tab==='analytics') renderAnalytics();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab,.nbtn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+tab).classList.add('on');
+  document.querySelectorAll('[data-tab="'+tab+'"]').forEach(b=>b.classList.add('on'));
 }
 
-// === HOME ===
+// ============================================================
+// HOME
+// ============================================================
 function renderHome() {
-  const total = data.wallets.reduce((s,w)=>s+w.balance,0);
-  document.getElementById('totalBalance').textContent = fmt(total);
+  const total = db.wallets.reduce((s,w)=>s+w.balance,0);
+  document.getElementById('totalBal').textContent = fmt(total);
+  const d = new Date();
+  const txs = db.transactions.filter(t=>{ const x=new Date(t.date); return x.getMonth()===d.getMonth()&&x.getFullYear()===d.getFullYear(); });
+  document.getElementById('mInc').textContent = fmt(txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0));
+  document.getElementById('mExp').textContent = fmt(txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0));
 
-  const now = new Date();
-  const txs = data.transactions.filter(t=>{
-    const d = new Date(t.date);
-    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
-  });
-  const inc = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-  const exp = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  document.getElementById('monthIncome').textContent = fmt(inc);
-  document.getElementById('monthExpense').textContent = fmt(exp);
+  document.getElementById('homeWallets').innerHTML = db.wallets.map(w=>`
+    <div class="wcard" data-goto="wallets">
+      <div class="wicon" style="background:${w.color}20">${WICONS[w.type]||'💰'}</div>
+      <div class="wname">${w.name}</div>
+      <div class="wbal">${fmt(w.balance)}</div>
+      <div class="wtype">${wTypeName(w.type)}</div>
+    </div>`).join('')+`<div class="wcard" id="addWCard" style="display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text3)">
+      <div style="font-size:24px;margin-bottom:4px">+</div><div style="font-size:12px">เพิ่มกระเป๋า</div></div>`;
 
-  // wallets
-  const hw = document.getElementById('homeWallets');
-  hw.innerHTML = data.wallets.map(w=>`
-    <div class="wallet-card" onclick="showTab('wallets')">
-      <div class="wallet-icon" style="background:${w.color}20">${WALLET_ICONS[w.type]||'💰'}</div>
-      <div class="wallet-name">${w.name}</div>
-      <div class="wallet-balance">${fmt(w.balance)}</div>
-      <div class="wallet-type">${walletTypeName(w.type)}</div>
-    </div>
-  `).join('') + `<div class="wallet-card" onclick="openAddWallet()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text3)">
-    <div style="font-size:24px;margin-bottom:4px">+</div>
-    <div style="font-size:12px">เพิ่มกระเป๋า</div>
-  </div>`;
+  document.querySelectorAll('[data-goto="wallets"]').forEach(el=>el.addEventListener('click',()=>showTab('wallets')));
+  const awc = document.getElementById('addWCard');
+  if(awc) awc.addEventListener('click', openWalletModal);
 
-  // recent
-  const recent = [...data.transactions].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
-  document.getElementById('recentTx').innerHTML = recent.length ? recent.map(t=>txRow(t)).join('') : '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">ยังไม่มีรายการ กด + เพื่อเพิ่ม</div></div>';
+  const recent = [...db.transactions].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
+  document.getElementById('recentTx').innerHTML = recent.length ? recent.map(txRow).join('') : '<div class="empty"><div class="ei">📋</div><div class="et">ยังไม่มีรายการ กด + เพื่อเพิ่ม</div></div>';
+  bindTxRows();
 }
 
-function walletTypeName(t) {
-  return {cash:'เงินสด',bank:'ธนาคาร',saving:'ออมสิน',credit:'บัตรเครดิต',ewallet:'E-Wallet'}[t]||t;
-}
-
-function txRow(t) {
-  const cat = findCat(t.category,t.type);
-  const wallet = data.wallets.find(w=>w.id===t.walletId);
-  const toWallet = t.toWalletId ? data.wallets.find(w=>w.id===t.toWalletId) : null;
-  const amtClass = t.type==='income'?'income':t.type==='expense'?'expense':t.type==='transfer'?'transfer':'debt';
-  const sign = t.type==='income'?'+':'';
-  const d = new Date(t.date);
-  const dateStr = d.toLocaleDateString('th-TH',{day:'numeric',month:'short'});
-  let sub = dateStr;
-  if(wallet) sub += ' · ' + wallet.name;
-  if(toWallet) sub += ' → ' + toWallet.name;
-  const iconBg = t.type==='income'?'var(--green-bg)':t.type==='expense'?'var(--red-bg)':t.type==='transfer'?'var(--blue-bg)':'var(--purple-bg)';
-  return `<div class="tx-item" onclick="openTxDetail('${t.id}')">
-    <div class="tx-icon" style="background:${iconBg}">${cat?cat.emoji:t.type==='transfer'?'↔️':'💰'}</div>
-    <div class="tx-info">
-      <div class="tx-name">${t.note||cat?.name||''}</div>
-      <div class="tx-sub">${sub}</div>
-    </div>
-    <div class="tx-amount ${amtClass}">${sign}${fmt(t.amount)}</div>
-  </div>`;
-}
-
-function findCat(id, type) {
-  if(!id) return null;
-  const all = [...(CATS.expense||[]),...(CATS.income||[])];
-  return all.find(c=>c.id===id)||null;
-}
-
-// === HISTORY ===
-function changeMonth(d) {
-  currentMonth += d;
-  if(currentMonth>11){currentMonth=0;currentYear++;}
-  if(currentMonth<0){currentMonth=11;currentYear--;}
-  renderHistory();
-}
-function setFilter(btn, f) {
-  document.querySelectorAll('#page-history .filter-pill').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  historyFilter = f;
-  renderHistory();
-}
+// ============================================================
+// HISTORY
+// ============================================================
 function renderHistory() {
-  const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  document.getElementById('monthLabel').textContent = `${months[currentMonth]} ${currentYear+543}`;
-
-  let txs = data.transactions.filter(t=>{
-    const d = new Date(t.date);
-    return d.getMonth()===currentMonth && d.getFullYear()===currentYear;
-  });
-
-  // summary
+  document.getElementById('histMonthLbl').textContent = `${MONTHS[histM]} ${histY+543}`;
+  let txs = db.transactions.filter(t=>{ const d=new Date(t.date); return d.getMonth()===histM&&d.getFullYear()===histY; });
   const inc = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const exp = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  const histIncome = document.getElementById('histIncome');
-  const histExpense = document.getElementById('histExpense');
-  if(histIncome) histIncome.textContent = fmt(inc);
-  if(histExpense) histExpense.textContent = fmt(exp);
+  document.getElementById('histInc').textContent = fmt(inc);
+  document.getElementById('histExp').textContent = fmt(exp);
 
-  // filter type
-  if(historyFilter!=='all') txs = txs.filter(t=>t.type===historyFilter);
-
-  // search
-  const q = (document.getElementById('histSearch')?.value||'').trim().toLowerCase();
-  if(q) txs = txs.filter(t=>{
-    const cat = findCat(t.category, t.type);
-    return (t.note||'').toLowerCase().includes(q) || (cat?.name||'').toLowerCase().includes(q);
-  });
-
-  // sort
-  const sort = document.getElementById('histSort')?.value || 'date_desc';
+  if(histFilter!=='all') txs = txs.filter(t=>t.type===histFilter);
+  const q = document.getElementById('histSearch').value.trim().toLowerCase();
+  if(q) txs = txs.filter(t=>{ const c=catById(t.category); return (t.note||'').toLowerCase().includes(q)||(c?.n||'').toLowerCase().includes(q); });
+  const sort = document.getElementById('histSort').value;
   if(sort==='date_desc') txs.sort((a,b)=>new Date(b.date)-new Date(a.date));
   else if(sort==='date_asc') txs.sort((a,b)=>new Date(a.date)-new Date(b.date));
-  else if(sort==='amount_desc') txs.sort((a,b)=>b.amount-a.amount);
-  else if(sort==='amount_asc') txs.sort((a,b)=>a.amount-b.amount);
+  else if(sort==='amt_desc') txs.sort((a,b)=>b.amount-a.amount);
+  else if(sort==='amt_asc') txs.sort((a,b)=>a.amount-b.amount);
 
-  const el = document.getElementById('historyList');
-  if(!txs.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">' + (q?'ไม่พบรายการที่ค้นหา':'ไม่มีรายการในเดือนนี้') + '</div></div>';
-    return;
-  }
+  const el = document.getElementById('histList');
+  if(!txs.length) { el.innerHTML=`<div class="empty"><div class="ei">📋</div><div class="et">${q?'ไม่พบรายการ':'ไม่มีรายการในเดือนนี้'}</div></div>`; return; }
 
-  // group by date
-  const grouped = {};
-  txs.forEach(t=>{
-    const key = t.date;
-    if(!grouped[key]) grouped[key]=[];
-    grouped[key].push(t);
-  });
-  const dateKeys = Object.keys(grouped);
-  if(sort==='date_asc') dateKeys.sort((a,b)=>a.localeCompare(b));
-  else if(sort==='date_desc') dateKeys.sort((a,b)=>b.localeCompare(a));
-  // amount sorts don't group by date, just flat list
-  if(sort.startsWith('amount')) {
-    el.innerHTML = txs.map(t=>txRow(t)).join('');
-    return;
-  }
+  if(sort.startsWith('amt')) { el.innerHTML=txs.map(txRow).join(''); bindTxRows(); return; }
 
-  el.innerHTML = dateKeys.map(date=>{
-    const d = new Date(date);
-    const label = d.toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});
-    const dayTotal = grouped[date].reduce((s,t)=>t.type==='income'?s+t.amount:t.type==='expense'?s-t.amount:s,0);
-    const daySign = dayTotal>=0?'+':'';
-    const dayColor = dayTotal>=0?'var(--green-dark)':'var(--red-dark)';
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px;border-top:1px solid var(--cream2);margin-top:4px">
-      <div style="font-size:12px;font-weight:600;color:var(--text2)">${label}</div>
-      <div style="font-size:12px;font-weight:600;color:${dayColor}">${daySign}${fmt(Math.abs(dayTotal))}</div>
-    </div>${grouped[date].map(t=>txRow(t)).join('')}`;
+  const grp = {};
+  txs.forEach(t=>{ if(!grp[t.date]) grp[t.date]=[]; grp[t.date].push(t); });
+  const keys = Object.keys(grp).sort((a,b)=>sort==='date_asc'?a.localeCompare(b):b.localeCompare(a));
+  el.innerHTML = keys.map(date=>{
+    const dlbl = new Date(date).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});
+    const dt = grp[date].reduce((s,t)=>t.type==='income'?s+t.amount:t.type==='expense'?s-t.amount:s,0);
+    return `<div class="dgrp-hdr"><div class="dgrp-label">${dlbl}</div><div class="dgrp-total" style="color:${dt>=0?'var(--green-dk)':'var(--red-dk)'}">${dt>=0?'+':''}${fmt(Math.abs(dt))}</div></div>${grp[date].map(txRow).join('')}`;
   }).join('');
+  bindTxRows();
 }
 
-// === WALLETS ===
-function renderWallets() {
-  const total = data.wallets.reduce((s,w)=>s+w.balance,0);
-  document.getElementById('walletTotal').textContent = fmt(total);
-  document.getElementById('walletCount').textContent = data.wallets.length + ' ใบ';
+// ============================================================
+// TX ROW HTML
+// ============================================================
+function txRow(t) {
+  const cat = catById(t.category);
+  const w = db.wallets.find(x=>x.id===t.walletId);
+  const tw = t.toWalletId ? db.wallets.find(x=>x.id===t.toWalletId) : null;
+  const cls = t.type==='income'?'inc':t.type==='expense'?'exp':t.type==='transfer'?'trf':'dbt';
+  const ibg = {income:'var(--green-bg)',expense:'var(--red-bg)',transfer:'var(--blue-bg)',debt:'var(--purple-bg)'}[t.type]||'var(--cream2)';
+  const sign = t.type==='income'?'+':'';
+  const d = new Date(t.date).toLocaleDateString('th-TH',{day:'numeric',month:'short'});
+  let sub = d;
+  if(w) sub += ' · '+w.name;
+  if(tw) sub += ' → '+tw.name;
+  return `<div class="txrow" data-txid="${t.id}">
+    <div class="txicon" style="background:${ibg}">${cat?cat.e:t.type==='transfer'?'↔️':'💰'}</div>
+    <div class="txinfo"><div class="txname">${t.note||cat?.n||''}</div><div class="txsub">${sub}</div></div>
+    <div class="txamt ${cls}">${sign}${fmt(t.amount)}</div>
+  </div>`;
+}
 
-  const el = document.getElementById('walletList');
-  el.innerHTML = data.wallets.map(w=>`
-    <div class="debt-card">
-      <div class="debt-header">
+function bindTxRows() {
+  document.querySelectorAll('[data-txid]').forEach(el=>{
+    el.addEventListener('click', ()=>openTxDetail(el.dataset.txid));
+  });
+}
+
+// ============================================================
+// WALLETS
+// ============================================================
+function renderWallets() {
+  const total = db.wallets.reduce((s,w)=>s+w.balance,0);
+  document.getElementById('wTotal').textContent = fmt(total);
+  document.getElementById('wCount').textContent = db.wallets.length+' ใบ';
+  document.getElementById('walletList').innerHTML = db.wallets.map(w=>`
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
         <div style="display:flex;align-items:center;gap:10px">
-          <div class="wallet-icon" style="background:${w.color}20;width:40px;height:40px;border-radius:10px">${WALLET_ICONS[w.type]||'💰'}</div>
-          <div>
-            <div class="debt-name">${w.name}</div>
-            <div style="font-size:12px;color:var(--text3)">${walletTypeName(w.type)}</div>
-          </div>
+          <div class="wicon" style="background:${w.color}20;width:40px;height:40px;border-radius:10px">${WICONS[w.type]||'💰'}</div>
+          <div><div style="font-size:15px;font-weight:600">${w.name}</div><div style="font-size:12px;color:var(--text3)">${wTypeName(w.type)}</div></div>
         </div>
-        <div>
-          <div style="font-size:18px;font-weight:700;color:${w.balance<0?'var(--red-dark)':'var(--text)'};text-align:right">${fmt(w.balance)}</div>
-          <button class="delete-btn" onclick="deleteWallet('${w.id}')" style="float:right;margin-top:2px" title="ลบ">🗑️</button>
+        <div style="text-align:right">
+          <div style="font-size:18px;font-weight:700;color:${w.balance<0?'var(--red-dk)':'var(--text)'}">${fmt(w.balance)}</div>
+          <button class="del-btn" data-delw="${w.id}">🗑️</button>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
+  document.querySelectorAll('[data-delw]').forEach(el=>{
+    el.addEventListener('click', ()=>deleteWallet(el.dataset.delw));
+  });
 }
 
-// === DEBTS ===
-function setDebtFilter(btn, f) {
-  document.querySelectorAll('#page-debts .filter-pill').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  debtFilter = f;
-  renderDebts();
-}
+// ============================================================
+// DEBTS
+// ============================================================
 function renderDebts() {
-  let debts = data.debts.filter(d=>!d.settled);
-  const owe = debts.filter(d=>d.debtType==='owe').reduce((s,d)=>s+(d.amount-d.paid),0);
-  const lend = debts.filter(d=>d.debtType==='lend').reduce((s,d)=>s+(d.amount-d.paid),0);
-  document.getElementById('totalOwe').textContent = fmt(owe);
-  document.getElementById('totalLend').textContent = fmt(lend);
-
-  if(debtFilter!=='all') debts = debts.filter(d=>d.debtType===debtFilter);
-  debts = debts.sort((a,b)=>new Date(b.created)-new Date(a.created));
-
+  let debts = db.debts.filter(d=>!d.settled);
+  document.getElementById('dOwe').textContent = fmt(debts.filter(d=>d.dtype==='owe').reduce((s,d)=>s+(d.amount-d.paid),0));
+  document.getElementById('dLend').textContent = fmt(debts.filter(d=>d.dtype==='lend').reduce((s,d)=>s+(d.amount-d.paid),0));
+  if(debtFilter!=='all') debts=debts.filter(d=>d.dtype===debtFilter);
+  debts.sort((a,b)=>new Date(b.created)-new Date(a.created));
   const el = document.getElementById('debtList');
   const empty = document.getElementById('debtEmpty');
-  if(debts.length===0) { el.innerHTML=''; empty.style.display='block'; return; }
+  if(!debts.length){el.innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
-
   el.innerHTML = debts.map(d=>{
-    const remaining = d.amount - d.paid;
-    const pct = d.amount > 0 ? Math.round((d.paid/d.amount)*100) : 0;
-    const due = d.due ? new Date(d.due).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}) : null;
-    return `<div class="debt-card" onclick="openDebtDetail('${d.id}')">
-      <div class="debt-header">
-        <div class="debt-name">${d.person}</div>
-        <span class="debt-type-badge ${d.debtType==='owe'?'badge-owe':'badge-lend'}">${d.debtType==='owe'?'เราเป็นหนี้':'คนอื่นยืม'}</span>
-      </div>
+    const rem = d.amount-d.paid;
+    const pct = d.amount>0?Math.round((d.paid/d.amount)*100):0;
+    const due = d.due ? new Date(d.due).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}):null;
+    return `<div class="dcard" data-debtid="${d.id}">
+      <div class="dcard-hdr"><div class="dname">${d.person}</div><span class="badge ${d.dtype==='owe'?'badge-o':'badge-l'}">${d.dtype==='owe'?'เราเป็นหนี้':'คนอื่นยืม'}</span></div>
       ${d.note?`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">${d.note}</div>`:''}
-      <div class="debt-amounts">
-        <div class="debt-amt-item">
-          <div class="debt-amt-label">เงินต้น</div>
-          <div class="debt-amt-val">${fmt(d.amount)}</div>
-        </div>
-        <div class="debt-amt-item">
-          <div class="debt-amt-label">ชำระแล้ว</div>
-          <div class="debt-amt-val" style="color:var(--green-dark)">${fmt(d.paid)}</div>
-        </div>
-        <div class="debt-amt-item">
-          <div class="debt-amt-label">คงเหลือ</div>
-          <div class="debt-amt-val" style="color:${d.debtType==='owe'?'var(--red-dark)':'var(--blue-dark)'}">${fmt(remaining)}</div>
-        </div>
+      <div class="damts">
+        <div class="damt"><div class="dl">เงินต้น</div><div class="dv">${fmt(d.amount)}</div></div>
+        <div class="damt"><div class="dl">ชำระแล้ว</div><div class="dv" style="color:var(--green-dk)">${fmt(d.paid)}</div></div>
+        <div class="damt"><div class="dl">คงเหลือ</div><div class="dv" style="color:${d.dtype==='owe'?'var(--red-dk)':'var(--blue-dk)'}">${fmt(rem)}</div></div>
       </div>
-      <div class="debt-progress-wrap"><div class="debt-progress ${d.debtType==='owe'?'progress-owe':'progress-lend'}" style="width:${pct}%"></div></div>
-      <div class="debt-meta">
-        <div class="debt-meta-txt">ชำระแล้ว ${pct}%</div>
-        ${due?`<div class="debt-meta-txt">ครบ ${due}</div>`:''}
-      </div>
+      <div class="dpbar"><div class="dpfill ${d.dtype==='owe'?'dpfill-o':'dpfill-l'}" style="width:${pct}%"></div></div>
+      <div class="dmeta"><div class="dmt">ชำระแล้ว ${pct}%</div>${due?`<div class="dmt">ครบ ${due}</div>`:''}</div>
     </div>`;
   }).join('');
-}
-
-// === ANALYTICS ===
-function changeAnalyticsMonth(d) {
-  analyticsMonth += d;
-  if(analyticsMonth>11){analyticsMonth=0;analyticsYear++;}
-  if(analyticsMonth<0){analyticsMonth=11;analyticsYear--;}
-  renderAnalytics();
-}
-function renderAnalytics() {
-  const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  document.getElementById('analyticsMonthLabel').textContent = `${months[analyticsMonth]} ${analyticsYear+543}`;
-
-  const txs = data.transactions.filter(t=>{
-    const d = new Date(t.date);
-    return d.getMonth()===analyticsMonth && d.getFullYear()===analyticsYear;
+  document.querySelectorAll('[data-debtid]').forEach(el=>{
+    el.addEventListener('click', ()=>openDebtDetail(el.dataset.debtid));
   });
+}
+
+// ============================================================
+// ANALYTICS
+// ============================================================
+function renderAnalytics() {
+  document.getElementById('anaMonthLbl').textContent = `${MONTHS[anaM]} ${anaY+543}`;
+  const txs = db.transactions.filter(t=>{ const d=new Date(t.date); return d.getMonth()===anaM&&d.getFullYear()===anaY; });
   const inc = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const exp = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  const saving = inc - exp;
-  const rate = inc > 0 ? Math.round((saving/inc)*100) : 0;
+  const save = inc-exp;
+  document.getElementById('anaInc').textContent = fmt(inc);
+  document.getElementById('anaExp').textContent = fmt(exp);
+  document.getElementById('anaSave').textContent = (save>=0?'+':'')+fmt(save);
+  document.getElementById('anaSave').style.color = save>=0?'var(--green-dk)':'var(--red-dk)';
+  document.getElementById('anaRate').textContent = inc>0?Math.round((save/inc)*100)+'%':'0%';
 
-  document.getElementById('anaIncome').textContent = fmt(inc);
-  document.getElementById('anaExpense').textContent = fmt(exp);
-  document.getElementById('anaSaving').textContent = (saving>=0?'+':'')+fmt(saving);
-  document.getElementById('anaSaving').style.color = saving>=0?'var(--green-dark)':'var(--red-dark)';
-  document.getElementById('anaSaveRate').textContent = rate+'%';
-
-  // bar chart 6 months
-  const barData = [];
-  for(let i=5;i>=0;i--) {
-    let m = analyticsMonth - i;
-    let y = analyticsYear;
-    if(m<0){m+=12;y--;}
-    const mtxs = data.transactions.filter(t=>{const d=new Date(t.date);return d.getMonth()===m&&d.getFullYear()===y;});
-    barData.push({
-      label: months[m].replace('.','\u200b'),
-      inc: mtxs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0),
-      exp: mtxs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0),
-    });
+  // bar chart
+  const bars = [];
+  for(let i=5;i>=0;i--){
+    let m=anaM-i, y=anaY; if(m<0){m+=12;y--;}
+    const mt = db.transactions.filter(t=>{ const d=new Date(t.date); return d.getMonth()===m&&d.getFullYear()===y; });
+    bars.push({lbl:MONTHS[m],inc:mt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0),exp:mt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0)});
   }
-  const maxVal = Math.max(...barData.map(b=>Math.max(b.inc,b.exp)), 1);
-  document.getElementById('barChart').innerHTML = `<div class="chart-bars">${barData.map(b=>`
-    <div class="chart-col">
-      <div class="chart-bar-wrap">
-        <div class="chart-bar bar-income" style="height:${Math.round((b.inc/maxVal)*70)}px"></div>
-        <div class="chart-bar bar-expense" style="height:${Math.round((b.exp/maxVal)*70)}px"></div>
-      </div>
-      <div class="chart-label">${b.label}</div>
-    </div>`).join('')}</div>`;
+  const mx = Math.max(...bars.map(b=>Math.max(b.inc,b.exp)),1);
+  document.getElementById('anaChart').innerHTML = `<div class="cbars">${bars.map(b=>`<div class="ccol"><div class="cbar-wrap"><div class="cbar binc" style="height:${Math.round(b.inc/mx*70)}px"></div><div class="cbar bexp" style="height:${Math.round(b.exp/mx*70)}px"></div></div><div class="clbl">${b.lbl}</div></div>`).join('')}</div>`;
 
-  // expense by cat
-  const expTxs = txs.filter(t=>t.type==='expense');
-  const expByCat = {};
-  expTxs.forEach(t=>{ expByCat[t.category||'other_expense'] = (expByCat[t.category||'other_expense']||0)+t.amount; });
-  renderCatList('expenseCats', expByCat, exp, CATS.expense, '#e05c5c');
-
-  const incTxs = txs.filter(t=>t.type==='income');
-  const incByCat = {};
-  incTxs.forEach(t=>{ incByCat[t.category||'other_income'] = (incByCat[t.category||'other_income']||0)+t.amount; });
-  renderCatList('incomeCats', incByCat, inc, CATS.income, '#4caf7d');
+  // cat lists
+  const PALETTE = ['#4caf7d','#5b8fd4','#e09640','#9b72d4','#e05c5c','#e07b9b','#4bb8c4','#8fae52'];
+  function catList(elId, type, total) {
+    const bycat = {};
+    txs.filter(t=>t.type===type).forEach(t=>{ bycat[t.category||'other_e']=(bycat[t.category||'other_e']||0)+t.amount; });
+    const el = document.getElementById(elId);
+    if(!total){el.innerHTML='<div style="text-align:center;color:var(--text3);font-size:13px;padding:12px 0">ไม่มีข้อมูล</div>';return;}
+    el.innerHTML = Object.entries(bycat).sort((a,b)=>b[1]-a[1]).map(([id,amt],i)=>{
+      const c = catById(id)||{e:'📦',n:id};
+      const pct = Math.round(amt/total*100);
+      return `<div class="catrow"><div style="width:28px;text-align:center;font-size:16px">${c.e}</div><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><div style="font-size:13px">${c.n}</div><div style="font-size:13px;font-weight:600">${fmt(amt)}</div></div><div class="catbar-wrap"><div class="catbar-fill" style="width:${pct}%;background:${PALETTE[i%PALETTE.length]}"></div></div></div><div style="font-size:11px;color:var(--text3);width:30px;text-align:right">${pct}%</div></div>`;
+    }).join('');
+  }
+  catList('anaExpCat','expense',exp);
+  catList('anaIncCat','income',inc);
 }
 
-function renderCatList(elId, bycat, total, cats, color) {
-  const el = document.getElementById(elId);
-  if(total===0) { el.innerHTML='<div style="text-align:center;color:var(--text3);font-size:13px;padding:12px 0">ไม่มีข้อมูล</div>'; return; }
-  const sorted = Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
-  const palette = ['#4caf7d','#5b8fd4','#e09640','#9b72d4','#e05c5c','#e07b9b','#4bb8c4','#8fae52'];
-  el.innerHTML = sorted.map(([catId,amt],i)=>{
-    const cat = cats.find(c=>c.id===catId)||{emoji:'📦',name:catId};
-    const pct = Math.round((amt/total)*100);
-    const c = palette[i%palette.length];
-    return `<div class="cat-row" style="margin-bottom:10px">
-      <div style="width:28px;text-align:center;font-size:16px">${cat.emoji}</div>
-      <div style="flex:1">
-        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
-          <div style="font-size:13px;color:var(--text)">${cat.name}</div>
-          <div style="font-size:13px;font-weight:600;color:var(--text)">${fmt(amt)}</div>
-        </div>
-        <div class="cat-bar-wrap"><div class="cat-bar-fill" style="width:${pct}%;background:${c}"></div></div>
-      </div>
-      <div style="font-size:11px;color:var(--text3);width:30px;text-align:right">${pct}%</div>
-    </div>`;
-  }).join('');
-}
-
-// === ADD TX MODAL ===
-function openAddTx() {
+// ============================================================
+// TX MODAL
+// ============================================================
+function openTxModal(prefill) {
   editTxId = null;
-  document.getElementById('txModalTitle').textContent = 'บันทึกรายการ';
-  document.getElementById('txAmount').value = '';
-  document.getElementById('txNote').value = '';
-  document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
-  setTxType('expense');
-  selectedWalletId = data.wallets[0]?.id || null;
-  selectedToWalletId = null;
-  selectedCat = null;
-  renderWalletChips();
-  openModal('addTxModal');
-}
-function setTxType(type) {
-  currentTxType = type;
-  document.querySelectorAll('#addTxModal .type-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelector(`#addTxModal .type-btn.${type}`).classList.add('active');
-  const catSection = document.getElementById('catSection');
-  const toSection = document.getElementById('toWalletSection');
-  const walletLabel = document.getElementById('walletLabel');
-  if(type==='transfer') {
-    catSection.style.display='none';
-    toSection.style.display='block';
-    walletLabel.textContent = 'จากกระเป๋า';
-    renderToWalletChips();
-  } else {
-    catSection.style.display='block';
-    toSection.style.display='none';
-    walletLabel.textContent = 'กระเป๋า';
-    renderCatGrid(type);
-  }
-  renderWalletChips();
-}
-function renderCatGrid(type) {
-  const cats = type==='income'?CATS.income:CATS.expense;
-  document.getElementById('catGrid').innerHTML = cats.map(c=>`
-    <div class="cat-option ${selectedCat===c.id?'selected':''}" onclick="selectCat('${c.id}',this)">
-      <div class="emoji">${c.emoji}</div>
-      <div class="name">${c.name}</div>
-    </div>`).join('');
-}
-function selectCat(id, el) {
-  selectedCat = id;
-  document.querySelectorAll('.cat-option').forEach(e=>e.classList.remove('selected'));
-  el.classList.add('selected');
-}
-function renderWalletChips() {
-  document.getElementById('walletSelectRow').innerHTML = data.wallets.map(w=>`
-    <div class="wallet-chip ${selectedWalletId===w.id?'selected':''}" onclick="selectWallet('${w.id}',this)">
-      ${WALLET_ICONS[w.type]||'💰'} ${w.name}
-    </div>`).join('');
-}
-function renderToWalletChips() {
-  document.getElementById('toWalletSelectRow').innerHTML = data.wallets.map(w=>`
-    <div class="wallet-chip ${selectedToWalletId===w.id?'selected':''}" onclick="selectToWallet('${w.id}',this)">
-      ${WALLET_ICONS[w.type]||'💰'} ${w.name}
-    </div>`).join('');
-}
-function selectWallet(id, el) {
-  selectedWalletId = id;
-  document.querySelectorAll('#walletSelectRow .wallet-chip').forEach(e=>e.classList.remove('selected'));
-  el.classList.add('selected');
-}
-function selectToWallet(id, el) {
-  selectedToWalletId = id;
-  document.querySelectorAll('#toWalletSelectRow .wallet-chip').forEach(e=>e.classList.remove('selected'));
-  el.classList.add('selected');
-}
-function saveTx() {
-  const amount = parseFloat(document.getElementById('txAmount').value);
-  const note = document.getElementById('txNote').value.trim();
-  const date = document.getElementById('txDate').value;
-  if(!amount || amount<=0) { showToast('กรุณากรอกจำนวนเงิน'); return; }
-  if(!selectedWalletId) { showToast('กรุณาเลือกกระเป๋า'); return; }
-  if(currentTxType==='transfer' && !selectedToWalletId) { showToast('กรุณาเลือกกระเป๋าปลายทาง'); return; }
-  if(currentTxType==='transfer' && selectedWalletId===selectedToWalletId) { showToast('กระเป๋าต้องไม่ซ้ำกัน'); return; }
-
-  const tx = {
-    id: editTxId || uid(),
-    type: currentTxType,
-    amount,
-    note,
-    date,
-    category: selectedCat,
-    walletId: selectedWalletId,
-    toWalletId: currentTxType==='transfer'?selectedToWalletId:null,
-    created: new Date().toISOString()
-  };
-
-  if(editTxId) {
-    // reverse old
-    const old = data.transactions.find(t=>t.id===editTxId);
-    if(old) reverseWallet(old);
-    data.transactions = data.transactions.filter(t=>t.id!==editTxId);
-  }
-
-  data.transactions.push(tx);
-  applyWallet(tx);
-  save();
-  closeModal('addTxModal');
-  renderAll();
-  showToast('บันทึกแล้ว ✓');
-}
-function applyWallet(tx) {
-  const w = data.wallets.find(w=>w.id===tx.walletId);
-  if(!w) return;
-  if(tx.type==='income') w.balance += tx.amount;
-  else if(tx.type==='expense') w.balance -= tx.amount;
-  else if(tx.type==='transfer') {
-    w.balance -= tx.amount;
-    const tw = data.wallets.find(w=>w.id===tx.toWalletId);
-    if(tw) tw.balance += tx.amount;
-  }
-}
-function reverseWallet(tx) {
-  const w = data.wallets.find(w=>w.id===tx.walletId);
-  if(!w) return;
-  if(tx.type==='income') w.balance -= tx.amount;
-  else if(tx.type==='expense') w.balance += tx.amount;
-  else if(tx.type==='transfer') {
-    w.balance += tx.amount;
-    const tw = data.wallets.find(w=>w.id===tx.toWalletId);
-    if(tw) tw.balance -= tx.amount;
-  }
+  document.getElementById('mTxTitle').textContent = 'บันทึกรายการ';
+  document.getElementById('txAmt').value = prefill?.amount||'';
+  document.getElementById('txNote').value = prefill?.note||'';
+  document.getElementById('txDate').value = prefill?.date||today();
+  selW = prefill?.walletId||db.wallets[0]?.id||null;
+  selToW = prefill?.toWalletId||null;
+  selCat = prefill?.category||null;
+  setTxType(prefill?.type||'expense');
+  openModal('mTx');
 }
 
-// === TX DETAIL ===
-let currentTxId = null;
-function openTxDetail(id) {
-  currentTxId = id;
-  const t = data.transactions.find(t=>t.id===id);
-  if(!t) return;
-  const cat = findCat(t.category, t.type);
-  const wallet = data.wallets.find(w=>w.id===t.walletId);
-  const toWallet = t.toWalletId ? data.wallets.find(w=>w.id===t.toWalletId) : null;
-  const d = new Date(t.date).toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const typeLabel = {income:'รายรับ',expense:'รายจ่าย',transfer:'โอนเงิน',debt:'หนี้สิน'}[t.type];
-  const amtColor = t.type==='income'?'var(--green-dark)':t.type==='expense'?'var(--red-dark)':t.type==='transfer'?'var(--blue-dark)':'var(--purple-dark)';
-  document.getElementById('txDetailContent').innerHTML = `
-    <div style="text-align:center;padding:16px 0">
-      <div style="font-size:40px;margin-bottom:8px">${cat?cat.emoji:t.type==='transfer'?'↔️':'💰'}</div>
-      <div style="font-size:13px;color:var(--text3);margin-bottom:4px">${typeLabel}</div>
-      <div style="font-size:28px;font-weight:700;color:${amtColor}">${t.type==='income'?'+':''}${fmt(t.amount)}</div>
-      ${t.note?`<div style="font-size:15px;color:var(--text);margin-top:8px">${t.note}</div>`:''}
-    </div>
-    <div class="card" style="margin-top:0">
-      <div class="tx-item" style="cursor:default"><div style="color:var(--text3);font-size:13px;width:80px">วันที่</div><div style="font-size:13px">${d}</div></div>
-      ${cat?`<div class="tx-item" style="cursor:default"><div style="color:var(--text3);font-size:13px;width:80px">หมวด</div><div style="font-size:13px">${cat.emoji} ${cat.name}</div></div>`:''}
-      ${wallet?`<div class="tx-item" style="cursor:default"><div style="color:var(--text3);font-size:13px;width:80px">กระเป๋า</div><div style="font-size:13px">${WALLET_ICONS[wallet.type]||'💰'} ${wallet.name}</div></div>`:''}
-      ${toWallet?`<div class="tx-item" style="cursor:default"><div style="color:var(--text3);font-size:13px;width:80px">ไปยัง</div><div style="font-size:13px">${WALLET_ICONS[toWallet.type]||'💰'} ${toWallet.name}</div></div>`:''}
-    </div>`;
-  openModal('txDetailModal');
-}
 function editTx(id) {
-  const t = data.transactions.find(t=>t.id===id);
+  const t = db.transactions.find(t=>t.id===id);
   if(!t) return;
-  closeModal('txDetailModal');
   editTxId = id;
-  document.getElementById('txModalTitle').textContent = 'แก้ไขรายการ';
-  document.getElementById('txAmount').value = t.amount;
+  document.getElementById('mTxTitle').textContent = 'แก้ไขรายการ';
+  document.getElementById('txAmt').value = t.amount;
   document.getElementById('txNote').value = t.note||'';
   document.getElementById('txDate').value = t.date;
-  selectedWalletId = t.walletId;
-  selectedToWalletId = t.toWalletId||null;
-  selectedCat = t.category||null;
+  selW = t.walletId; selToW = t.toWalletId||null; selCat = t.category||null;
   setTxType(t.type);
-  openModal('addTxModal');
+  openModal('mTx');
 }
 
-  if(!currentTxId) return;
-  const t = data.transactions.find(t=>t.id===currentTxId);
-  if(t) { reverseWallet(t); data.transactions = data.transactions.filter(x=>x.id!==currentTxId); }
-  save(); closeModal('txDetailModal'); renderAll(); showToast('ลบแล้ว');
+function setTxType(type) {
+  txType = type;
+  document.querySelectorAll('#mTx .tbtn').forEach(b=>{ b.classList.remove('on'); if(b.dataset.type===type) b.classList.add('on'); });
+  document.getElementById('catSec').style.display = type==='transfer'?'none':'block';
+  document.getElementById('toWSec').style.display = type==='transfer'?'block':'none';
+  document.getElementById('wLbl').textContent = type==='transfer'?'จากกระเป๋า':'กระเป๋า';
+  if(type!=='transfer') renderCatGrid(type);
+  renderWChips();
+  if(type==='transfer') renderToWChips();
 }
 
-// === WALLETS ===
-let selectedColor = COLORS[0];
-function openAddWallet() {
-  document.getElementById('walletName').value = '';
-  document.getElementById('walletBalance').value = '';
-  document.getElementById('walletType').value = 'cash';
-  selectedColor = COLORS[0];
-  document.getElementById('colorOptions').innerHTML = COLORS.map((c,i)=>`
-    <div class="color-opt ${i===0?'selected':''}" style="background:${c}" onclick="selectColor('${c}',this)"></div>`).join('');
-  openModal('addWalletModal');
-}
-function selectColor(c, el) {
-  selectedColor = c;
-  document.querySelectorAll('.color-opt').forEach(e=>e.classList.remove('selected'));
-  el.classList.add('selected');
-}
-function saveWallet() {
-  const name = document.getElementById('walletName').value.trim();
-  const balance = parseFloat(document.getElementById('walletBalance').value)||0;
-  const type = document.getElementById('walletType').value;
-  if(!name) { showToast('กรุณาใส่ชื่อกระเป๋า'); return; }
-  data.wallets.push({ id:uid(), name, type, balance, color:selectedColor, created:new Date().toISOString() });
-  save(); closeModal('addWalletModal'); renderAll(); showToast('เพิ่มกระเป๋าแล้ว ✓');
-}
-function deleteWallet(id) {
-  if(data.wallets.length<=1) { showToast('ต้องมีกระเป๋าอย่างน้อย 1 ใบ'); return; }
-  if(!confirm('ลบกระเป๋านี้? รายการที่เกี่ยวข้องจะยังอยู่')) return;
-  data.wallets = data.wallets.filter(w=>w.id!==id);
-  save(); renderAll(); showToast('ลบกระเป๋าแล้ว');
+function renderCatGrid(type) {
+  const cats = type==='income'?CATS.income:CATS.expense;
+  document.getElementById('catGrid').innerHTML = cats.map(c=>`<div class="copt${selCat===c.id?' on':''}" data-catid="${c.id}"><div class="em">${c.e}</div><div class="nm">${c.n}</div></div>`).join('');
+  document.querySelectorAll('[data-catid]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      selCat = el.dataset.catid;
+      document.querySelectorAll('[data-catid]').forEach(e=>e.classList.remove('on'));
+      el.classList.add('on');
+    });
+  });
 }
 
-// === DEBTS ===
-function setDebtType(type) {
-  currentDebtType = type;
-  document.querySelectorAll('#addDebtModal .type-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('#addDebtModal .type-btn')[type==='owe'?0:1].classList.add('active');
-  document.getElementById('debtPersonLabel').textContent = type==='owe'?'ชื่อเจ้าหนี้':'ชื่อลูกหนี้';
-}
-function saveDebt() {
-  const person = document.getElementById('debtPerson').value.trim();
-  const amount = parseFloat(document.getElementById('debtAmount').value);
-  const note = document.getElementById('debtNote').value.trim();
-  const due = document.getElementById('debtDue').value;
-  if(!person) { showToast('กรุณาใส่ชื่อ'); return; }
-  if(!amount||amount<=0) { showToast('กรุณากรอกจำนวนเงิน'); return; }
-  data.debts.push({ id:uid(), debtType:currentDebtType, person, amount, paid:0, note, due, settled:false, created:new Date().toISOString() });
-  save(); closeModal('addDebtModal'); renderDebts(); showToast('บันทึกหนี้แล้ว ✓');
+function renderWChips() {
+  document.getElementById('wChips').innerHTML = db.wallets.map(w=>`<div class="wchip${selW===w.id?' on':''}" data-wid="${w.id}">${WICONS[w.type]||'💰'} ${w.name}</div>`).join('');
+  document.querySelectorAll('[data-wid]').forEach(el=>{
+    el.addEventListener('click', ()=>{ selW=el.dataset.wid; document.querySelectorAll('[data-wid]').forEach(e=>e.classList.remove('on')); el.classList.add('on'); });
+  });
 }
 
-let currentDebtId = null;
-function openDebtDetail(id) {
-  currentDebtId = id;
-  const d = data.debts.find(d=>d.id===id);
-  if(!d) return;
-  const remaining = d.amount - d.paid;
-  const pct = d.amount > 0 ? Math.round((d.paid/d.amount)*100) : 0;
-  document.getElementById('debtDetailContent').innerHTML = `
-    <div class="modal-title">${d.person}</div>
-    <div style="display:flex;gap:12px;margin-bottom:16px">
-      <div style="flex:1;text-align:center">
-        <div style="font-size:12px;color:var(--text3);margin-bottom:4px">เงินต้น</div>
-        <div style="font-size:20px;font-weight:700">${fmt(d.amount)}</div>
-      </div>
-      <div style="flex:1;text-align:center">
-        <div style="font-size:12px;color:var(--text3);margin-bottom:4px">คงเหลือ</div>
-        <div style="font-size:20px;font-weight:700;color:${d.debtType==='owe'?'var(--red-dark)':'var(--blue-dark)'}">${fmt(remaining)}</div>
-      </div>
+function renderToWChips() {
+  document.getElementById('toWChips').innerHTML = db.wallets.map(w=>`<div class="wchip${selToW===w.id?' on':''}" data-towid="${w.id}">${WICONS[w.type]||'💰'} ${w.name}</div>`).join('');
+  document.querySelectorAll('[data-towid]').forEach(el=>{
+    el.addEventListener('click', ()=>{ selToW=el.dataset.towid; document.querySelectorAll('[data-towid]').forEach(e=>e.classList.remove('on')); el.classList.add('on'); });
+  });
+}
+
+function saveTx() {
+  const amount = parseFloat(document.getElementById('txAmt').value);
+  const note = document.getElementById('txNote').value.trim();
+  const date = document.getElementById('txDate').value;
+  if(!amount||amount<=0) return toast('กรุณากรอกจำนวนเงิน');
+  if(!selW) return toast('กรุณาเลือกกระเป๋า');
+  if(txType==='transfer'&&(!selToW||selToW===selW)) return toast('กรุณาเลือกกระเป๋าปลายทางให้ต่างกัน');
+  const t = {id:editTxId||uid(),type:txType,amount,note,date,category:selCat,walletId:selW,toWalletId:txType==='transfer'?selToW:null,created:now()};
+  if(editTxId) { reverseWallet(db.transactions.find(x=>x.id===editTxId)); db.transactions=db.transactions.filter(x=>x.id!==editTxId); }
+  db.transactions.push(t);
+  applyWallet(t);
+  save(); closeModal('mTx'); renderAll(); toast('บันทึกแล้ว ✓');
+}
+
+function applyWallet(t) {
+  const w = db.wallets.find(x=>x.id===t.walletId); if(!w) return;
+  if(t.type==='income') w.balance+=t.amount;
+  else if(t.type==='expense') w.balance-=t.amount;
+  else if(t.type==='transfer') { w.balance-=t.amount; const tw=db.wallets.find(x=>x.id===t.toWalletId); if(tw) tw.balance+=t.amount; }
+}
+function reverseWallet(t) {
+  if(!t) return;
+  const w = db.wallets.find(x=>x.id===t.walletId); if(!w) return;
+  if(t.type==='income') w.balance-=t.amount;
+  else if(t.type==='expense') w.balance+=t.amount;
+  else if(t.type==='transfer') { w.balance+=t.amount; const tw=db.wallets.find(x=>x.id===t.toWalletId); if(tw) tw.balance-=t.amount; }
+}
+
+// ============================================================
+// TX DETAIL
+// ============================================================
+function openTxDetail(id) {
+  curTxId = id;
+  const t = db.transactions.find(t=>t.id===id); if(!t) return;
+  const cat = catById(t.category);
+  const w = db.wallets.find(x=>x.id===t.walletId);
+  const tw = t.toWalletId?db.wallets.find(x=>x.id===t.toWalletId):null;
+  const clr = {income:'var(--green-dk)',expense:'var(--red-dk)',transfer:'var(--blue-dk)',debt:'var(--purple-dk)'}[t.type];
+  const dlbl = {income:'รายรับ',expense:'รายจ่าย',transfer:'โอนเงิน',debt:'หนี้สิน'}[t.type];
+  const d = new Date(t.date).toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('txDetailContent').innerHTML = `
+    <div style="text-align:center;padding:16px 0">
+      <div style="font-size:40px;margin-bottom:8px">${cat?cat.e:t.type==='transfer'?'↔️':'💰'}</div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:4px">${dlbl}</div>
+      <div style="font-size:28px;font-weight:700;color:${clr}">${t.type==='income'?'+':''}${fmt(t.amount)}</div>
+      ${t.note?`<div style="font-size:15px;margin-top:8px">${t.note}</div>`:''}
     </div>
-    <div class="debt-progress-wrap" style="margin-bottom:8px"><div class="debt-progress ${d.debtType==='owe'?'progress-owe':'progress-lend'}" style="width:${pct}%"></div></div>
+    <div class="card" style="margin-top:0">
+      <div class="txrow" style="cursor:default"><div style="color:var(--text3);font-size:13px;width:80px">วันที่</div><div style="font-size:13px">${d}</div></div>
+      ${cat?`<div class="txrow" style="cursor:default"><div style="color:var(--text3);font-size:13px;width:80px">หมวด</div><div style="font-size:13px">${cat.e} ${cat.n}</div></div>`:''}
+      ${w?`<div class="txrow" style="cursor:default"><div style="color:var(--text3);font-size:13px;width:80px">กระเป๋า</div><div style="font-size:13px">${WICONS[w.type]||'💰'} ${w.name}</div></div>`:''}
+      ${tw?`<div class="txrow" style="cursor:default"><div style="color:var(--text3);font-size:13px;width:80px">ไปยัง</div><div style="font-size:13px">${WICONS[tw.type]||'💰'} ${tw.name}</div></div>`:''}
+    </div>`;
+  openModal('mTxDetail');
+}
+
+function deleteTx() {
+  reverseWallet(db.transactions.find(t=>t.id===curTxId));
+  db.transactions = db.transactions.filter(t=>t.id!==curTxId);
+  save(); closeModal('mTxDetail'); renderAll(); toast('ลบแล้ว');
+}
+
+// ============================================================
+// WALLET MODAL
+// ============================================================
+function openWalletModal() {
+  document.getElementById('wName').value='';
+  document.getElementById('wBal').value='';
+  document.getElementById('wType').value='cash';
+  selColor = COLORS[0];
+  document.getElementById('cpicks').innerHTML = COLORS.map((c,i)=>`<div class="cpick${i===0?' on':''}" data-color="${c}" style="background:${c}"></div>`).join('');
+  document.querySelectorAll('[data-color]').forEach(el=>{
+    el.addEventListener('click', ()=>{ selColor=el.dataset.color; document.querySelectorAll('[data-color]').forEach(e=>e.classList.remove('on')); el.classList.add('on'); });
+  });
+  openModal('mWallet');
+}
+
+function saveWallet() {
+  const name = document.getElementById('wName').value.trim();
+  const bal = parseFloat(document.getElementById('wBal').value)||0;
+  const type = document.getElementById('wType').value;
+  if(!name) return toast('กรุณาใส่ชื่อกระเป๋า');
+  db.wallets.push({id:uid(),name,type,balance:bal,color:selColor,created:now()});
+  save(); closeModal('mWallet'); renderAll(); toast('เพิ่มกระเป๋าแล้ว ✓');
+}
+
+function deleteWallet(id) {
+  if(db.wallets.length<=1) return toast('ต้องมีกระเป๋าอย่างน้อย 1 ใบ');
+  if(!confirm('ลบกระเป๋านี้?')) return;
+  db.wallets = db.wallets.filter(w=>w.id!==id);
+  save(); renderAll(); toast('ลบกระเป๋าแล้ว');
+}
+
+// ============================================================
+// DEBT MODAL
+// ============================================================
+function openDebtModal() {
+  document.getElementById('dPerson').value='';
+  document.getElementById('dAmt').value='';
+  document.getElementById('dNote').value='';
+  document.getElementById('dDue').value='';
+  setDebtType('owe');
+  openModal('mDebt');
+}
+
+function setDebtType(type) {
+  debtType = type;
+  document.querySelectorAll('#mDebt .tbtn').forEach(b=>{ b.classList.remove('on'); if(b.dataset.dtype===type) b.classList.add('on'); });
+  document.getElementById('dPersonLbl').textContent = type==='owe'?'ชื่อเจ้าหนี้':'ชื่อลูกหนี้';
+}
+
+function saveDebt() {
+  const person = document.getElementById('dPerson').value.trim();
+  const amount = parseFloat(document.getElementById('dAmt').value);
+  const note = document.getElementById('dNote').value.trim();
+  const due = document.getElementById('dDue').value;
+  if(!person) return toast('กรุณาใส่ชื่อ');
+  if(!amount||amount<=0) return toast('กรุณากรอกจำนวนเงิน');
+  db.debts.push({id:uid(),dtype:debtType,person,amount,paid:0,note,due,settled:false,created:now()});
+  save(); closeModal('mDebt'); renderDebts(); toast('บันทึกหนี้แล้ว ✓');
+}
+
+function openDebtDetail(id) {
+  curDebtId = id;
+  const d = db.debts.find(d=>d.id===id); if(!d) return;
+  const rem = d.amount-d.paid;
+  const pct = d.amount>0?Math.round(d.paid/d.amount*100):0;
+  document.getElementById('debtDetailContent').innerHTML = `
+    <div class="mtitle">${d.person}</div>
+    <div style="display:flex;gap:12px;margin-bottom:16px">
+      <div style="flex:1;text-align:center"><div style="font-size:12px;color:var(--text3);margin-bottom:4px">เงินต้น</div><div style="font-size:20px;font-weight:700">${fmt(d.amount)}</div></div>
+      <div style="flex:1;text-align:center"><div style="font-size:12px;color:var(--text3);margin-bottom:4px">คงเหลือ</div><div style="font-size:20px;font-weight:700;color:${d.dtype==='owe'?'var(--red-dk)':'var(--blue-dk)'}">${fmt(rem)}</div></div>
+    </div>
+    <div class="dpbar" style="margin-bottom:8px"><div class="dpfill ${d.dtype==='owe'?'dpfill-o':'dpfill-l'}" style="width:${pct}%"></div></div>
     <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:8px">ชำระแล้ว ${pct}% (${fmt(d.paid)})</div>
     ${d.note?`<div style="font-size:13px;color:var(--text2);margin-bottom:8px">📝 ${d.note}</div>`:''}
-    ${d.due?`<div style="font-size:13px;color:var(--text2)">📅 ครบกำหนด: ${new Date(d.due).toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'})}</div>`:''}
-  `;
-  document.getElementById('payAmount').value = '';
-  openModal('debtDetailModal');
+    ${d.due?`<div style="font-size:13px;color:var(--text2)">📅 ครบ: ${new Date(d.due).toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'})}</div>`:''}`;
+  document.getElementById('payAmt').value='';
+  openModal('mDebtDetail');
 }
+
 function payDebt() {
-  const amt = parseFloat(document.getElementById('payAmount').value);
-  if(!amt||amt<=0) { showToast('กรุณากรอกจำนวน'); return; }
-  const d = data.debts.find(d=>d.id===currentDebtId);
-  if(!d) return;
-  d.paid = Math.min(d.paid+amt, d.amount);
-  if(d.paid>=d.amount) { d.settled=true; showToast('ชำระครบแล้ว 🎉'); }
-  else showToast('บันทึกการชำระแล้ว ✓');
-  save(); closeModal('debtDetailModal'); renderDebts();
+  const amt = parseFloat(document.getElementById('payAmt').value);
+  if(!amt||amt<=0) return toast('กรุณากรอกจำนวน');
+  const d = db.debts.find(d=>d.id===curDebtId); if(!d) return;
+  d.paid = Math.min(d.paid+amt,d.amount);
+  if(d.paid>=d.amount){d.settled=true; toast('ชำระครบแล้ว 🎉');}
+  else toast('บันทึกการชำระแล้ว ✓');
+  save(); closeModal('mDebtDetail'); renderDebts();
 }
+
 function deleteDebt() {
-  if(!currentDebtId) return;
-  data.debts = data.debts.filter(d=>d.id!==currentDebtId);
-  save(); closeModal('debtDetailModal'); renderDebts(); showToast('ลบแล้ว');
+  db.debts = db.debts.filter(d=>d.id!==curDebtId);
+  save(); closeModal('mDebtDetail'); renderDebts(); toast('ลบแล้ว');
 }
 
-// === FAB CONTEXT ===
-// Smart FAB - detect current tab
-document.querySelector('.fab').addEventListener('click', ()=>{
-  const activePage = document.querySelector('.page.active');
-  if(activePage.id==='page-debts') openDebtAddModal();
-  else openAddTx();
-});
-document.querySelector('.fab').onclick = function() {
-  const activePage = document.querySelector('.page.active');
-  if(activePage.id==='page-debts') openDebtAddModal();
-  else openAddTx();
-};
-function openDebtAddModal() {
-  currentDebtType = 'owe';
-  document.getElementById('debtPerson').value='';
-  document.getElementById('debtAmount').value='';
-  document.getElementById('debtNote').value='';
-  document.getElementById('debtDue').value='';
-  setDebtType('owe');
-  openModal('addDebtModal');
+// ============================================================
+// MODAL HELPERS
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.add('on'); }
+function closeModal(id) { document.getElementById(id).classList.remove('on'); }
+
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('on');
+  setTimeout(()=>el.classList.remove('on'), 2200);
 }
 
-// === MODAL HELPERS ===
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function closeOnOverlay(e, id) { if(e.target.classList.contains('modal-overlay')) closeModal(id); }
-
-// === TOAST ===
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2200);
-}
-
-// === PWA ===
-if('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
+// PWA
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
