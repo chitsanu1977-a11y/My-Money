@@ -921,7 +921,15 @@ function editTx(id) {
   document.getElementById('txNote').value=t.note||'';
   document.getElementById('txDate').value=t.date;
   selW=t.walletId; selToW=t.toWalletId||null; selCat=t.category||null;
+  // init calculator กับยอดเดิม
+  calcExpr=String(t.amount); calcResult=t.amount; calcJustEvaled=false;
   setTxType(t.type);
+  buildCalcPad();
+  var display=document.getElementById('calcVal');
+  var exprEl=document.getElementById('calcExpr');
+  if(display) display.textContent=Number(t.amount).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2});
+  if(exprEl) exprEl.textContent='';
+  if(t.note) showNoteSuggestions(t.category);
   openModal('mTx');
 }
 
