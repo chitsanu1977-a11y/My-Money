@@ -570,6 +570,21 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
+<!-- MODAL: WALLET CALC -->
+<div class="moverlay" id="mWalletCalc">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="wCalcTitle">แก้ยอดกระเป๋า</div>
+    <div style="background:var(--bg2);border-radius:var(--rsm);padding:12px 16px;margin-bottom:8px;text-align:right">
+      <div id="wCalcExpr" style="font-size:13px;color:var(--text3);min-height:18px"></div>
+      <div id="wCalcVal" style="font-size:32px;font-weight:800;color:var(--accent)">0</div>
+    </div>
+    <div id="wCalcPad" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px"></div>
+    <button class="btn btn-p" id="saveWCalcBtn">💾 บันทึกยอดใหม่</button>
+    <button class="btn btn-s" id="closeWCalcBtn">ยกเลิก</button>
+  </div>
+</div>
+
 <!-- MODAL: CONFIRM DELETE -->
 <div class="moverlay" id="mConfirm">
   <div class="modal" style="padding-bottom:24px">
@@ -794,36 +809,26 @@ function renderWallets() {
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'+
         '<div class="wicon" style="background:'+w.color+'22;width:44px;height:44px;border-radius:12px;flex-shrink:0">'+(WICONS[w.type]||'💰')+'</div>'+
         '<div style="flex:1;min-width:0">'+
-          '<div style="font-size:15px;font-weight:600">'+w.name+'</div>'+
+          '<div style="font-size:15px;font-weight:700">'+w.name+'</div>'+
           '<div style="font-size:12px;color:var(--text3)">'+(WTYPE_NAME[w.type]||w.type)+'</div>'+
         '</div>'+
         '<button class="del-btn" data-delw="'+w.id+'">🗑️</button>'+
       '</div>'+
-      '<div style="display:flex;align-items:center;gap:8px">'+
-        '<div style="flex:1">'+
-          '<div style="font-size:11px;color:var(--text3);margin-bottom:4px">ยอดปัจจุบัน</div>'+
-          '<div style="display:flex;align-items:center;gap:6px">'+
-            '<span style="font-size:14px;color:var(--text2)">฿</span>'+
-            '<input type="number" class="finp" data-editw="'+w.id+'" value="'+w.balance+'" inputmode="decimal" style="font-size:18px;font-weight:700;padding:6px 8px;color:'+(w.balance<0?'var(--red-dk)':'var(--text)')+'">'+
-          '</div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between">'+
+        '<div>'+
+          '<div style="font-size:12px;color:var(--text3);margin-bottom:2px">ยอดปัจจุบัน</div>'+
+          '<div style="font-size:22px;font-weight:800;color:'+(w.balance<0?'var(--red-dk)':'var(--text)')+'">'+fmt(w.balance)+'</div>'+
           diffTxt+
         '</div>'+
-        '<button class="btn btn-p" data-savew="'+w.id+'" style="width:auto;padding:10px 16px;font-size:14px;margin-top:0">บันทึก</button>'+
+        '<button class="btn btn-s" data-editwcalc="'+w.id+'" style="width:auto;padding:10px 18px;font-size:15px;margin-top:0">✏️ แก้ยอด</button>'+
       '</div>'+
     '</div>';
   }).join('');
   el.querySelectorAll('[data-delw]').forEach(function(btn){
     btn.addEventListener('click', function(e){ e.stopPropagation(); deleteWallet(btn.dataset.delw); });
   });
-  el.querySelectorAll('[data-savew]').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var wid = btn.dataset.savew;
-      var inp = el.querySelector('[data-editw="'+wid+'"]');
-      var newBal = parseFloat(inp.value);
-      if(isNaN(newBal)){ toast('ตัวเลขไม่ถูกต้อง'); return; }
-      var w = db.wallets.find(function(x){return x.id===wid;});
-      if(w){ w.balance = newBal; saveDB(); renderWallets(); renderHome(); toast('บันทึกยอดแล้ว ✓'); }
-    });
+  el.querySelectorAll('[data-editwcalc]').forEach(function(btn){
+    btn.addEventListener('click', function(){ openWalletCalc(btn.dataset.editwcalc); });
   });
 }
 
@@ -1253,6 +1258,84 @@ function deleteDebt() {
   });
 }
 
+// ── WALLET CALC ──────────────────────────────────────────────
+var wCalcExpr = '';
+var wCalcWalletId = null;
+
+function openWalletCalc(wid) {
+  wCalcWalletId = wid;
+  var w = db.wallets.find(function(x){ return x.id===wid; });
+  if(!w) return;
+  document.getElementById('wCalcTitle').textContent = 'แก้ยอด: '+w.name;
+  wCalcExpr = String(w.balance);
+  document.getElementById('wCalcVal').textContent = w.balance.toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2});
+  document.getElementById('wCalcExpr').textContent = '';
+  document.getElementById('wCalcVal').style.color = w.balance<0?'var(--red-dk)':'var(--accent)';
+  var pad = document.getElementById('wCalcPad');
+  var keys = [
+    {l:'C',cls:'cbtn-clr'},{l:'±',cls:'cbtn-op'},{l:'%',cls:'cbtn-op'},{l:'÷',cls:'cbtn-op'},
+    {l:'7',cls:'cbtn-num'},{l:'8',cls:'cbtn-num'},{l:'9',cls:'cbtn-num'},{l:'×',cls:'cbtn-op'},
+    {l:'4',cls:'cbtn-num'},{l:'5',cls:'cbtn-num'},{l:'6',cls:'cbtn-num'},{l:'−',cls:'cbtn-op'},
+    {l:'1',cls:'cbtn-num'},{l:'2',cls:'cbtn-num'},{l:'3',cls:'cbtn-num'},{l:'+',cls:'cbtn-op'},
+    {l:'0',cls:'cbtn-num',span:2},{l:'.',cls:'cbtn-num'},{l:'⌫',cls:'cbtn-del'},
+    {l:'=',cls:'cbtn-eq',span:4},
+  ];
+  pad.innerHTML='';
+  keys.forEach(function(k){
+    var btn=document.createElement('button');
+    btn.className='cbtn '+k.cls; btn.textContent=k.l;
+    if(k.span) btn.style.gridColumn='span '+k.span;
+    btn.addEventListener('click',function(){ wCalcPress(k.l); });
+    pad.appendChild(btn);
+  });
+  openModal('mWalletCalc');
+}
+
+function wCalcPress(key) {
+  var display=document.getElementById('wCalcVal');
+  var exprEl=document.getElementById('wCalcExpr');
+  var ops=['+','−','×','÷'];
+  if(key==='C'){ wCalcExpr='0'; display.textContent='0'; exprEl.textContent=''; display.style.color='var(--accent)'; return; }
+  if(key==='⌫'){ wCalcExpr=wCalcExpr.slice(0,-1)||'0'; wCalcUpdateDisplay(); return; }
+  if(key==='='){
+    exprEl.textContent=wCalcExpr+' =';
+    try {
+      var r=Function('"use strict";return ('+wCalcExpr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-')+')')();
+      r=Math.round(r*100)/100;
+      wCalcExpr=String(r);
+      display.textContent=r.toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2});
+      display.style.color=r<0?'var(--red-dk)':'var(--accent)';
+    } catch(e){ display.textContent='Error'; wCalcExpr='0'; }
+    return;
+  }
+  if(key==='±'){ wCalcExpr=wCalcExpr.startsWith('-')?wCalcExpr.slice(1):'-'+wCalcExpr; wCalcUpdateDisplay(); return; }
+  if(key==='%'){
+    try { var v=Function('"use strict";return ('+wCalcExpr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-')+')')(); wCalcExpr=String(v/100); wCalcUpdateDisplay(); } catch(e){}
+    return;
+  }
+  if(wCalcExpr==='0' && !ops.includes(key) && key!=='.') { wCalcExpr=key; wCalcUpdateDisplay(); return; }
+  wCalcExpr+=key; wCalcUpdateDisplay();
+}
+
+function wCalcUpdateDisplay() {
+  var display=document.getElementById('wCalcVal');
+  document.getElementById('wCalcExpr').textContent=wCalcExpr;
+  try {
+    var v=Function('"use strict";return ('+wCalcExpr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-')+')')();
+    if(!isNaN(v)){ display.textContent=v.toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:4}); display.style.color=v<0?'var(--red-dk)':'var(--accent)'; }
+  } catch(e){ display.textContent=wCalcExpr; }
+}
+
+function saveWalletCalc() {
+  try {
+    var expr=wCalcExpr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+    var newBal=Math.round(Function('"use strict";return ('+expr+')')() * 100)/100;
+    if(isNaN(newBal)){ toast('ตัวเลขไม่ถูกต้อง'); return; }
+    var w=db.wallets.find(function(x){return x.id===wCalcWalletId;});
+    if(w){ w.balance=newBal; saveDB(); closeModal('mWalletCalc'); renderWallets(); renderHome(); toast('บันทึกยอดแล้ว ✓'); }
+  } catch(e){ toast('ตัวเลขไม่ถูกต้อง'); }
+}
+
 // ── CALCULATOR ───────────────────────────────────────────────
 var calcExpr = '';
 var calcResult = 0;
@@ -1534,6 +1617,8 @@ document.addEventListener('DOMContentLoaded', function(){
     el.addEventListener('click', function(){ setDebtType(el.dataset.dtype); });
   });
 
+  document.getElementById('saveWCalcBtn').addEventListener('click', saveWalletCalc);
+  document.getElementById('closeWCalcBtn').addEventListener('click', function(){ closeModal('mWalletCalc'); });
   document.getElementById('confirmCancelBtn').addEventListener('click', function(){ closeModal('mConfirm'); confirmCallback=null; });
   document.getElementById('confirmOkBtn').addEventListener('click', function(){ closeModal('mConfirm'); if(confirmCallback){ confirmCallback(); confirmCallback=null; } });
 
