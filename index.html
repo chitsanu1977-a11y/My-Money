@@ -216,6 +216,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
 .del-btn{background:none;border:none;font-size:16px;cursor:pointer;color:var(--text3);padding:4px;line-height:1}
 .trf-arrow{text-align:center;font-size:20px;color:var(--text3);margin:4px 0}
+/* CALCULATOR */
+.cbtn{padding:16px 8px;border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:700;cursor:pointer;transition:all .15s;text-align:center}
+.cbtn:active{transform:scale(.93)}
+.cbtn-num{background:#fff;color:var(--text);box-shadow:var(--sh)}
+.cbtn-op{background:var(--accent-bg);color:var(--accent-dk)}
+.cbtn-eq{background:var(--accent);color:#fff}
+.cbtn-del{background:var(--red-bg);color:var(--red-dk)}
+.cbtn-clr{background:var(--bg2);color:var(--text2)}
 </style>
 </head>
 <body>
@@ -384,23 +392,38 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       <button class="tbtn t-exp" data-txtype="expense">❤️ รายจ่าย</button>
       <button class="tbtn t-trf" data-txtype="transfer">💙 โอน</button>
     </div>
+
+    <!-- 1. หมวดหมู่ก่อน -->
+    <div id="catSec" class="fgrp">
+      <label class="flbl">หมวดหมู่</label>
+      <div class="cgrid" id="catGrid"></div>
+    </div>
+
+    <!-- 2. เครื่องคิดเลข -->
     <div class="fgrp">
       <label class="flbl">จำนวนเงิน</label>
-      <div class="amtwrap"><span class="cur">฿</span><input class="finp" type="number" id="txAmt" placeholder="0.00" inputmode="decimal"></div>
+      <div id="calcDisplay" style="background:#fff;border:1.5px solid var(--sand);border-radius:var(--rsm);padding:12px 16px;margin-bottom:8px;text-align:right;min-height:56px">
+        <div id="calcExpr" style="font-size:13px;color:var(--text3);min-height:18px"></div>
+        <div id="calcVal" style="font-size:28px;font-weight:800;color:var(--text)">0</div>
+      </div>
+      <input type="hidden" id="txAmt">
+      <div id="calcPad" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
     </div>
+
+    <!-- 3. รายละเอียด -->
     <div class="fgrp">
       <label class="flbl">รายละเอียด</label>
       <input class="finp" type="text" id="txNote" placeholder="เช่น ข้าวกลางวัน, เงินเดือน">
       <div id="noteSuggestions" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
     </div>
+
+    <!-- 4. วันที่ -->
     <div class="fgrp">
       <label class="flbl">วันที่</label>
       <input class="finp" type="date" id="txDate">
     </div>
-    <div id="catSec" class="fgrp">
-      <label class="flbl">หมวดหมู่</label>
-      <div class="cgrid" id="catGrid"></div>
-    </div>
+
+    <!-- 5. กระเป๋า -->
     <div class="fgrp">
       <label class="flbl" id="wLbl">กระเป๋า</label>
       <div class="wchips" id="wChips"></div>
@@ -870,7 +893,18 @@ function openTxModal(prefill) {
   selW=prefill&&prefill.walletId?prefill.walletId:(db.wallets[0]?db.wallets[0].id:null);
   selToW=prefill&&prefill.toWalletId?prefill.toWalletId:null;
   selCat=prefill&&prefill.category?prefill.category:null;
+  // reset calculator
+  calcExpr = prefill&&prefill.amount ? String(prefill.amount) : '';
+  calcResult = prefill&&prefill.amount ? prefill.amount : 0;
+  calcJustEvaled = false;
   setTxType(prefill&&prefill.type?prefill.type:'expense');
+  buildCalcPad();
+  // set display
+  var display = document.getElementById('calcVal');
+  var exprEl = document.getElementById('calcExpr');
+  if(display) display.textContent = prefill&&prefill.amount ? Number(prefill.amount).toLocaleString('th-TH') : '0';
+  if(exprEl) exprEl.textContent = '';
+  document.getElementById('noteSuggestions').innerHTML='';
   openModal('mTx');
 }
 
@@ -1219,7 +1253,132 @@ function deleteDebt() {
   });
 }
 
-// ── CATEGORIES PAGE ──────────────────────────────────────────
+// ── CALCULATOR ───────────────────────────────────────────────
+var calcExpr = '';
+var calcResult = 0;
+var calcJustEvaled = false;
+
+function buildCalcPad() {
+  var pad = document.getElementById('calcPad');
+  if(!pad) return;
+  var keys = [
+    {l:'C',  cls:'cbtn-clr', span:1},
+    {l:'±',  cls:'cbtn-op',  span:1},
+    {l:'%',  cls:'cbtn-op',  span:1},
+    {l:'÷',  cls:'cbtn-op',  span:1},
+    {l:'7',  cls:'cbtn-num', span:1},
+    {l:'8',  cls:'cbtn-num', span:1},
+    {l:'9',  cls:'cbtn-num', span:1},
+    {l:'×',  cls:'cbtn-op',  span:1},
+    {l:'4',  cls:'cbtn-num', span:1},
+    {l:'5',  cls:'cbtn-num', span:1},
+    {l:'6',  cls:'cbtn-num', span:1},
+    {l:'−',  cls:'cbtn-op',  span:1},
+    {l:'1',  cls:'cbtn-num', span:1},
+    {l:'2',  cls:'cbtn-num', span:1},
+    {l:'3',  cls:'cbtn-num', span:1},
+    {l:'+',  cls:'cbtn-op',  span:1},
+    {l:'0',  cls:'cbtn-num', span:2},
+    {l:'.',  cls:'cbtn-num', span:1},
+    {l:'⌫',  cls:'cbtn-del', span:1},
+    {l:'=',  cls:'cbtn-eq',  span:4},
+  ];
+  pad.innerHTML = '';
+  pad.style.gridTemplateColumns = 'repeat(4,1fr)';
+  keys.forEach(function(k){
+    var btn = document.createElement('button');
+    btn.className = 'cbtn ' + k.cls;
+    btn.textContent = k.l;
+    if(k.span > 1) btn.style.gridColumn = 'span ' + k.span;
+    btn.addEventListener('click', function(){ calcPress(k.l); });
+    pad.appendChild(btn);
+  });
+}
+
+function calcPress(key) {
+  var display = document.getElementById('calcVal');
+  var exprEl = document.getElementById('calcExpr');
+  if(!display) return;
+
+  if(key === 'C') {
+    calcExpr = ''; calcResult = 0; calcJustEvaled = false;
+    display.textContent = '0'; exprEl.textContent = '';
+    document.getElementById('txAmt').value = '';
+    return;
+  }
+  if(key === '⌫') {
+    if(calcJustEvaled){ calcExpr=''; calcJustEvaled=false; }
+    calcExpr = calcExpr.slice(0,-1);
+    updateCalcDisplay(); return;
+  }
+  if(key === '=') {
+    if(!calcExpr) return;
+    exprEl.textContent = calcExpr + ' =';
+    try {
+      var expr = calcExpr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+      var result = Function('"use strict"; return (' + expr + ')')();
+      result = Math.round(result * 100) / 100;
+      calcResult = result;
+      calcExpr = String(result);
+      calcJustEvaled = true;
+      display.textContent = result.toLocaleString('th-TH', {minimumFractionDigits:0,maximumFractionDigits:2});
+      document.getElementById('txAmt').value = result;
+    } catch(e) { display.textContent = 'Error'; calcExpr=''; }
+    return;
+  }
+  if(key === '±') {
+    if(calcExpr && calcExpr !== '0') {
+      if(calcExpr.startsWith('-')) calcExpr = calcExpr.slice(1);
+      else calcExpr = '-' + calcExpr;
+      updateCalcDisplay();
+    }
+    return;
+  }
+  if(key === '%') {
+    try {
+      var v = Function('"use strict"; return (' + calcExpr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-') + ')')();
+      calcExpr = String(v / 100);
+      updateCalcDisplay();
+    } catch(e) {}
+    return;
+  }
+
+  // ถ้าเพิ่งกด = แล้วกดตัวเลข ให้เริ่มใหม่
+  if(calcJustEvaled && '0123456789.'.includes(key)) {
+    calcExpr = ''; calcJustEvaled = false;
+  }
+  calcJustEvaled = false;
+
+  // ป้องกันจุดทศนิยมซ้ำ
+  var ops = ['+','-','×','÷','−'];
+  var lastIsOp = ops.some(function(o){ return calcExpr.endsWith(o); });
+  if(key === '.' && !lastIsOp) {
+    var parts = calcExpr.split(/[+\-×÷]/);
+    if(parts[parts.length-1].includes('.')) return;
+  }
+
+  calcExpr += key;
+  updateCalcDisplay();
+}
+
+function updateCalcDisplay() {
+  var display = document.getElementById('calcVal');
+  var exprEl = document.getElementById('calcExpr');
+  if(!display) return;
+  exprEl.textContent = calcExpr;
+  // แสดงตัวเลขส่วนสุดท้าย
+  var parts = calcExpr.split(/[+×÷]|(?<=[0-9)])-/);
+  var last = parts[parts.length-1] || '0';
+  try {
+    var n = parseFloat(last);
+    display.textContent = isNaN(n) ? (calcExpr||'0') : n.toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:4});
+  } catch(e) { display.textContent = calcExpr||'0'; }
+  // อัพ hidden input ถ้าเป็นตัวเลขเดียว
+  try {
+    var simple = Function('"use strict"; return (' + calcExpr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-') + ')')();
+    if(!isNaN(simple)) document.getElementById('txAmt').value = Math.round(simple*100)/100;
+  } catch(e) {}
+}
 var catPageType = 'expense';
 
 function renderCats() {
