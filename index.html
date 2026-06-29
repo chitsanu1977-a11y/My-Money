@@ -720,7 +720,11 @@ function renderHome() {
   var hwAdd = document.getElementById('hwAddBtn');
   if(hwAdd) hwAdd.addEventListener('click', openWalletModal);
 
-  var recent = db.transactions.slice().sort(function(a,b){return new Date(b.date)-new Date(a.date);}).slice(0,8);
+  var recent = db.transactions.slice().sort(function(a,b){
+    // เรียงตามเวลาที่สร้าง (created) ก่อน ถ้าไม่มีใช้วันที่
+    var ta = a.created||a.date; var tb = b.created||b.date;
+    return new Date(tb)-new Date(ta);
+  }).slice(0,8);
   var el = document.getElementById('recentTx');
   el.innerHTML = recent.length ? recent.map(txRowHTML).join('') : '<div class="empty"><div class="ei">📋</div><div class="et">ยังไม่มีรายการ กด + เพื่อเพิ่ม</div></div>';
   bindTxClicks(el);
@@ -742,8 +746,14 @@ function renderHistory() {
     return (t.note||'').toLowerCase().indexOf(q)>-1||(c?c.n:'').toLowerCase().indexOf(q)>-1;
   });
   var sort = document.getElementById('histSort').value;
-  if(sort==='date_desc') txs.sort(function(a,b){return new Date(b.date)-new Date(a.date);});
-  else if(sort==='date_asc') txs.sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+  if(sort==='date_desc') txs.sort(function(a,b){
+    var d=new Date(b.date)-new Date(a.date);
+    return d!==0?d:new Date(b.created||b.date)-new Date(a.created||a.date);
+  });
+  else if(sort==='date_asc') txs.sort(function(a,b){
+    var d=new Date(a.date)-new Date(b.date);
+    return d!==0?d:new Date(a.created||a.date)-new Date(b.created||b.date);
+  });
   else if(sort==='amt_desc') txs.sort(function(a,b){return b.amount-a.amount;});
   else if(sort==='amt_asc') txs.sort(function(a,b){return a.amount-b.amount;});
 
