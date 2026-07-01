@@ -632,24 +632,30 @@ const DEFAULT_CATS = {
 };
 let CATS = {expense:[...DEFAULT_CATS.expense], income:[...DEFAULT_CATS.income]};
 
-const EMOJI_LIST = [
-  '🍜','🍱','🍔','🍕','🍣','🥗','☕','🧋','🍺','🎂',
-  '🚗','🚕','🚌','✈️','🚂','⛽','🛵','🚲','🚁','🛺',
-  '🛍️','👗','👟','💍','🧴','🪥','🛒','🏷️','🎁','🧸',
-  '💊','🏥','🦷','👓','💉','🧘','🏋️','🩺','🧪','❤️‍🩹',
-  '🏠','🛋️','💡','🔧','🪣','🌿','🏡','🪟','🚿','🛁',
-  '🎬','🎮','🎯','🎳','🎰','🎪','🎭','🎨','🎤','🎸',
-  '🎹','🥁','🎻','🎺','🎷','🎵','🎶','🎼','🎧','🎙️',
-  '📚','✏️','📝','🎓','🏫','📐','🔬','💡','📖','🧠',
-  '💄','💅','💈','👒','🧖','🪞','💋','🌸','🌺','💐',
-  '🐾','🐶','🐱','🐰','🐟','🦜','🐾','🌳','🪴','🌻',
-  '🛡️','📋','💰','💳','📊','🏦','💹','🤝','📱','💻',
-  '🏪','🏬','🏢','🏨','🏗️','🏭','🌆','🌇','🏙️','🗼',
-  '💼','💵','💸','🤑','📈','📉','🏆','🎖️','🥇','⭐',
-  '🎀','🎊','🎉','🥳','🪅','🎈','🎆','🎇','✨','🌟',
-  '🍕','🍦','🧁','🥤','🍿','🎪','🎠','🎡','🎢','🎪',
-  '⚽','🏀','🏈','⚾','🎾','🏊','🚴','🧗','🤸','🏄',
+const EMOJI_CATS = [
+  {label:'🍜 อาหาร', list:['🍜','🍱','🍔','🍕','🍣','🥗','🍛','🍝','🌮','🌯','🥙','🍗','🍖','🥩','🍱','🍤','🦐','🦞','🦀','🍣','🥟','🧆','🥘','🍲','🥣','🧇','🥞','🧈','🍳','🥚','🧀','🥗','🥙','🌽','🥕','🧄','🧅','🥑','🍅','🫑','🥦','🥬']},
+  {label:'☕ เครื่องดื่ม', list:['☕','🧋','🍺','🧃','🥤','🍵','🍹','🍸','🍷','🥂','🫖','🧊','🥛','🍼','🫗','🍶']},
+  {label:'🍰 ขนม', list:['🎂','🍰','🧁','🍩','🍪','🍫','🍬','🍭','🍮','🍡','🧁','🍦','🍧','🍨','🫐','🍓','🍒','🍑','🍌','🍉','🍇']},
+  {label:'🚗 เดินทาง', list:['🚗','🚕','🚌','✈️','🚂','⛽','🛵','🚲','🚁','🛺','🚎','🏎️','🚓','🚑','🚒','🛻','🚚','🚛','🛳️','⛵','🚤','🛥️','🚀','🛸','🚠','🚡','🚟','🚃','🚋','🚞','🚝','🛤️','⛽','🅿️','🚦','🚧']},
+  {label:'🛍️ ช้อปปิ้ง', list:['🛍️','👗','👟','💍','🧴','🪥','🛒','🏷️','🎁','🧸','👠','👒','🧢','🎩','🧤','🧣','🧥','👔','👕','👖','👗','👘','🥻','🩱','🩲','🩳','👙','🩴','👞','👡','🥾','🥿','🧦','⌚','👜','👝','🎒','💼','🧳']},
+  {label:'💊 สุขภาพ', list:['💊','🏥','🦷','👓','💉','🧘','🏋️','🩺','🧪','❤️‍🩹','🩻','🩹','🧬','🔬','🩺','💆','💇','🛁','🚿','🧼','🪒','🧻','🩼','🦽','🦯','🩸']},
+  {label:'🏠 บ้าน', list:['🏠','🛋️','💡','🔧','🪣','🌿','🏡','🪟','🚿','🛁','🔑','🗝️','🪑','🛏️','🚪','🪞','🧹','🧺','🧻','🧽','🪠','🔩','🪛','🔨','🪚','🪤','🧲','🕯️','🪔','🏮','💎']},
+  {label:'💡 ค่าบริการ', list:['💡','📡','📶','🌐','📺','📻','☎️','📞','🔌','🔋','🪫','💻','🖨️','🖥️','⌨️','🖱️','📠','📟','📲','📳','📴','📵']},
+  {label:'💳 การเงิน', list:['💳','💰','💵','💸','🤑','📈','📉','🏦','💹','🤝','📊','🪙','💎','🏧','💱','🎰','🎟️','🎫','🧾','📋','📄','📃','📑','🗒️']},
+  {label:'🎰 ลอตเตอรี่/พนัน', list:['🎰','🎟️','🎫','🃏','🀄','🎲','🎯','🎳','🎪','🎠','🎡','🎢','🎭','🎨','🖼️','🎪']},
+  {label:'📱 เทคโนโลยี', list:['📱','💻','🖥️','⌨️','🖱️','🖨️','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','🔭','🔬','🧫','🧪','🤖','👾','🕹️','🎮','💾','💿','📀','🖲️','🗜️']},
+  {label:'🎬 บันเทิง', list:['🎬','🎮','🎯','🎳','🎪','🎭','🎨','🎤','🎸','🎹','🥁','🎻','🎺','🎷','🎵','🎶','🎼','🎧','🎙️','🎞️','📽️','🎦','🎠','🎡','🎢','🎟️','🎫','🎰','🎲','♟️','🎭','🎪']},
+  {label:'⚽ กีฬา', list:['⚽','🏀','🏈','⚾','🎾','🏊','🚴','🧗','🤸','🏄','🏋️','🤼','🤺','🏇','⛷️','🏂','🪂','🏌️','🏹','🎣','🤿','🎽','🥊','🥋','🎿','🛷','🥌','🏒','🏓','🏸','🥅','⛳','🎱','🏆','🥇','🥈','🥉','🎖️','🏵️']},
+  {label:'📚 การศึกษา', list:['📚','✏️','📝','🎓','🏫','📐','🔬','📖','🧠','📒','📓','📔','📕','📗','📘','📙','📚','📖','🔭','🔬','🧫','🧪','🧲','💡','🔦','📡','🗺️','🌍','🌎','🌏']},
+  {label:'💄 ความงาม', list:['💄','💅','💈','👒','🧖','🪞','💋','🌸','🌺','💐','🪷','🌹','💅','🧴','🪥','🧼','🪒','💆','💇','👑','💎','💍','💒']},
+  {label:'🐾 สัตว์เลี้ยง', list:['🐾','🐶','🐱','🐰','🐟','🦜','🌳','🪴','🌻','🐠','🐡','🐢','🦎','🐍','🦖','🐸','🐊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐕‍🦺','🐈','🐈‍⬛','🐇','🦔','🦦','🦥','🐁','🐀','🐿️','🦫']},
+  {label:'🛡️ ประกัน/ป้องกัน', list:['🛡️','🔒','🔐','🔑','🗝️','🔏','⛑️','🪖','🧯','🚒','🚑','🏥','💊','🩺','📋','📄','🖊️','✍️','🤝','⚖️','🏛️']},
+  {label:'✈️ ท่องเที่ยว', list:['✈️','🏖️','🏝️','🗺️','🌍','🏔️','⛰️','🗻','🏕️','🌋','🏜️','🏟️','🏛️','🏗️','🗼','🗽','🗿','🏰','🏯','⛩️','🕌','🕍','⛪','🛕','🏠','🏡','🏘️','🏚️','🏢','🏬','🏣','🏤','🏥','🏦','🏨','🏩','🏪','🏫','🏭','🎠','🎡','🎢','💈','🎪']},
+  {label:'🎀 ของขวัญ/พิเศษ', list:['🎀','🎁','🎊','🎉','🥳','🪅','🎈','🎆','🎇','✨','🌟','⭐','🌠','🎑','🎐','🎏','🎎','🎍','🎋','🎃','🎄','🎆','🎇','🧨','🪔','🕯️','🪄','🎩','🪅','🎭']},
+  {label:'💼 งาน/ธุรกิจ', list:['💼','🏢','👔','🤝','📊','📈','📉','📋','📌','📍','✂️','🖇️','📎','🖊️','🖋️','✒️','📝','📏','📐','🗂️','🗃️','🗄️','🗑️','🔖','🏷️','📦','📫','📪','📬','📭','📮','🗳️','📥','📤','📧']},
+  {label:'🌱 อื่นๆ', list:['🌱','🌿','🍀','🌾','🌵','🎋','🎍','🪨','🪵','🌊','🔥','🌈','⚡','🌪️','🌤️','⛅','🌥️','☁️','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','☃️','⛄','🌬️','💨','💧','💦','☔','⛱️','⚡','🌟']},
 ];
+const EMOJI_LIST = EMOJI_CATS.reduce(function(a,c){return a.concat(c.list);},[]); // flat list for backward compat
 
 const WICONS = {cash:'💵',bank:'🏦',saving:'🐷',credit:'💳',ewallet:'📱'};
 const COLORS = ['#3b6ef8','#38b87a','#e09640','#7c6ef5','#e05c5c','#6eb3f7','#4bb8c4','#e07b9b','#a07050','#7a8a9a'];
@@ -1572,13 +1578,19 @@ function renderCats() {
     var isCustom = customIds.indexOf(c.id) > -1;
     return '<div class="card" style="display:flex;align-items:center;gap:12px;padding:12px 16px;margin-bottom:8px">'+
       '<div style="font-size:28px;width:44px;text-align:center">'+c.e+'</div>'+
-      '<div style="flex:1"><div style="font-size:14px;font-weight:500">'+c.n+'</div>'+
-      '<div style="font-size:11px;color:var(--text3)">'+( isCustom?'หมวดที่เพิ่มเอง':'หมวดเริ่มต้น')+'</div></div>'+
-      (isCustom?'<button class="del-btn" data-delcat="'+c.id+'" data-cattype="'+catPageType+'">🗑️</button>':'')+
+      '<div style="flex:1"><div style="font-size:15px;font-weight:600">'+c.n+'</div>'+
+      '<div style="font-size:12px;color:var(--text3)">'+(isCustom?'หมวดที่เพิ่มเอง':'หมวดเริ่มต้น')+'</div></div>'+
+      (isCustom?
+        '<button class="del-btn" data-editcat="'+c.id+'" data-editcattype="'+catPageType+'" style="color:var(--accent);font-size:18px" title="แก้ไข">✏️</button>'+
+        '<button class="del-btn" data-delcat="'+c.id+'" data-cattype="'+catPageType+'">🗑️</button>'
+      :'')+
       '</div>';
   }).join('');
   list.querySelectorAll('[data-delcat]').forEach(function(btn){
     btn.addEventListener('click', function(){ deleteCat(btn.dataset.delcat, btn.dataset.cattype); });
+  });
+  list.querySelectorAll('[data-editcat]').forEach(function(btn){
+    btn.addEventListener('click', function(){ openEditCatModal(btn.dataset.editcat, btn.dataset.editcattype); });
   });
 }
 
@@ -1588,31 +1600,76 @@ var newCatEmoji = '🏷️';
 function openCatModal() {
   newCatType = catPageType;
   newCatEmoji = '🏷️';
+  newEditCatId = null;
   document.getElementById('mCatTitle').textContent = 'เพิ่มหมวดหมู่';
   document.getElementById('catName').value = '';
   document.getElementById('catEmoji').value = '';
   document.getElementById('selEmojiPreview').textContent = '🏷️';
-  // set toggle
   document.querySelectorAll('#catTypeTog .tbtn').forEach(function(b){
     b.classList.remove('active');
     if(b.dataset.ctype===newCatType) b.classList.add('active');
   });
-  // build emoji grid
+  buildEmojiPicker();
+  openModal('mCat');
+}
+
+var newEditCatId = null;
+
+function openEditCatModal(id, type) {
+  var cat = (db.cats&&db.cats[type]||[]).find(function(c){return c.id===id;});
+  if(!cat) return;
+  newEditCatId = id;
+  newCatType = type;
+  newCatEmoji = cat.e;
+  document.getElementById('mCatTitle').textContent = 'แก้ไขหมวดหมู่';
+  document.getElementById('catName').value = cat.n;
+  document.getElementById('catEmoji').value = cat.e;
+  document.getElementById('selEmojiPreview').textContent = cat.e;
+  document.querySelectorAll('#catTypeTog .tbtn').forEach(function(b){
+    b.classList.remove('active');
+    if(b.dataset.ctype===type) b.classList.add('active');
+  });
+  buildEmojiPicker();
+  openModal('mCat');
+}
+
+function buildEmojiPicker() {
   var picker = document.getElementById('emojiPicker');
-  picker.innerHTML = EMOJI_LIST.map(function(em){
-    return '<div style="width:38px;height:38px;border-radius:8px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:transform .1s" data-em="'+em+'">'+em+'</div>';
-  }).join('');
-  picker.querySelectorAll('[data-em]').forEach(function(el){
-    el.addEventListener('click', function(){
-      newCatEmoji = el.dataset.em;
-      document.getElementById('catEmoji').value = newCatEmoji;
-      document.getElementById('selEmojiPreview').textContent = newCatEmoji;
-      picker.querySelectorAll('[data-em]').forEach(function(e){ e.style.background='var(--bg2)'; e.style.transform=''; });
-      el.style.background = 'var(--accent-bg)';
-      el.style.transform = 'scale(1.2)';
+  // สร้าง tab bar หมวดหมู่
+  var tabBar = '<div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px;padding-bottom:4px">';
+  EMOJI_CATS.forEach(function(ec,i){
+    tabBar += '<div class="fpill'+(i===0?' active':'')+'" data-etab="'+i+'" style="flex-shrink:0;font-size:13px;padding:4px 10px">'+ec.label+'</div>';
+  });
+  tabBar += '</div><div id="emojiGrid" style="display:flex;flex-wrap:wrap;gap:6px;max-height:180px;overflow-y:auto;padding:2px 0"></div>';
+  picker.innerHTML = tabBar;
+
+  function showEmojiTab(idx) {
+    var grid = document.getElementById('emojiGrid');
+    grid.innerHTML = EMOJI_CATS[idx].list.map(function(em){
+      var sel = em===newCatEmoji;
+      return '<div style="width:40px;height:40px;border-radius:8px;background:'+(sel?'var(--accent-bg)':'var(--bg2)')+';display:flex;align-items:center;justify-content:center;font-size:23px;cursor:pointer;transition:all .1s;border:1.5px solid '+(sel?'var(--accent)':'transparent')+';" data-em="'+em+'">'+em+'</div>';
+    }).join('');
+    grid.querySelectorAll('[data-em]').forEach(function(el){
+      el.addEventListener('click', function(){
+        newCatEmoji = el.dataset.em;
+        document.getElementById('catEmoji').value = newCatEmoji;
+        document.getElementById('selEmojiPreview').textContent = newCatEmoji;
+        grid.querySelectorAll('[data-em]').forEach(function(e){
+          e.style.background='var(--bg2)'; e.style.border='1.5px solid transparent'; e.style.transform='';
+        });
+        el.style.background='var(--accent-bg)'; el.style.border='1.5px solid var(--accent)'; el.style.transform='scale(1.15)';
+      });
+    });
+  }
+
+  picker.querySelectorAll('[data-etab]').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      picker.querySelectorAll('[data-etab]').forEach(function(t){t.classList.remove('active');});
+      tab.classList.add('active');
+      showEmojiTab(parseInt(tab.dataset.etab));
     });
   });
-  openModal('mCat');
+  showEmojiTab(0);
 }
 
 function saveCat() {
@@ -1622,13 +1679,18 @@ function saveCat() {
   if(!emoji){ toast('กรุณาเลือก Emoji'); return; }
   if(!db.cats) db.cats={expense:[],income:[]};
   if(!db.cats[newCatType]) db.cats[newCatType]=[];
-  var id = 'custom_'+mkid();
-  db.cats[newCatType].push({id:id, e:emoji, n:name, custom:true});
-  mergeCats();
-  saveDB();
-  closeModal('mCat');
-  renderCats();
-  toast('เพิ่มหมวดหมู่แล้ว ✓');
+  // แก้ไขของเดิม
+  if(newEditCatId) {
+    var idx = db.cats[newCatType].findIndex(function(c){return c.id===newEditCatId;});
+    if(idx>-1){ db.cats[newCatType][idx].n=name; db.cats[newCatType][idx].e=emoji; }
+    newEditCatId=null;
+    toast('แก้ไขหมวดหมู่แล้ว ✓');
+  } else {
+    var id = 'custom_'+mkid();
+    db.cats[newCatType].push({id:id, e:emoji, n:name, custom:true});
+    toast('เพิ่มหมวดหมู่แล้ว ✓');
+  }
+  mergeCats(); saveDB(); closeModal('mCat'); renderCats();
 }
 
 function deleteCat(id, type) {
