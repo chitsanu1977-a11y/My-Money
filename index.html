@@ -715,7 +715,9 @@ function renderAll() {
 // ── HOME ──────────────────────────────────────────────────────
 function renderHome() {
   var total = db.wallets.reduce(function(s,w){return s+w.balance;},0);
-  document.getElementById('totalBal').textContent = fmt(total);
+  var totalEl = document.getElementById('totalBal');
+  totalEl.textContent = (total<0?'−':'')+fmt(total);
+  totalEl.style.color = total<0?'#ffcccc':'#ffffff';
   var d = new Date();
   var txs = db.transactions.filter(function(t){
     var x=new Date(t.date);
@@ -726,7 +728,7 @@ function renderHome() {
 
   var hw = document.getElementById('homeWallets');
   hw.innerHTML = db.wallets.map(function(w){
-    return '<div class="wcard" data-gowallet="1"><div class="wicon" style="background:'+w.color+'22">'+( WICONS[w.type]||'💰')+'</div><div class="wname">'+w.name+'</div><div class="wbal">'+fmt(w.balance)+'</div><div class="wtype">'+(WTYPE_NAME[w.type]||w.type)+'</div></div>';
+    return '<div class="wcard" data-gowallet="1"><div class="wicon" style="background:'+w.color+'22">'+(WICONS[w.type]||'💰')+'</div><div class="wname">'+w.name+'</div><div class="wbal" style="color:'+(w.balance<0?'var(--red-dk)':'var(--text)')+'">'+(w.balance<0?'−':'')+fmt(w.balance)+'</div><div class="wtype">'+(WTYPE_NAME[w.type]||w.type)+'</div></div>';
   }).join('')+'<div class="wcard" id="hwAddBtn" style="display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text3)"><div style="font-size:24px;margin-bottom:4px">+</div><div style="font-size:12px">เพิ่มกระเป๋า</div></div>';
 
   document.querySelectorAll('[data-gowallet]').forEach(function(el){
@@ -812,7 +814,9 @@ function bindTxClicks(container) {
 // ── WALLETS ───────────────────────────────────────────────────
 function renderWallets() {
   var total=db.wallets.reduce(function(s,w){return s+w.balance;},0);
-  document.getElementById('wTotal').textContent=fmt(total);
+  var wTotalEl=document.getElementById('wTotal');
+  wTotalEl.textContent=(total<0?'−':'')+fmt(total);
+  wTotalEl.style.color=total<0?'var(--red-dk)':'var(--text)';
   document.getElementById('wCount').textContent=db.wallets.length+' ใบ';
   var el=document.getElementById('walletList');
   el.innerHTML=db.wallets.map(function(w){
