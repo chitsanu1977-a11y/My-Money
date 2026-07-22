@@ -1011,6 +1011,7 @@ function openTxModal(prefill) {
   if(display) display.textContent = prefill&&prefill.amount ? Number(prefill.amount).toLocaleString('th-TH') : '0';
   if(exprEl) exprEl.textContent = '';
   document.getElementById('noteSuggestions').innerHTML='';
+  initNoteAutocomplete();
   openModal('mTx');
 }
 
@@ -1031,6 +1032,7 @@ function editTx(id) {
   if(display) display.textContent=Number(t.amount).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2});
   if(exprEl) exprEl.textContent='';
   if(t.note) showNoteSuggestions(t.category);
+  initNoteAutocomplete();
   openModal('mTx');
 }
 
@@ -1064,27 +1066,68 @@ function buildCatGrid(type) {
   if(selCat) showNoteSuggestions(selCat);
 }
 
+function getAllNotes() {
+  // รวบรวม note ทุกอันจาก transactions ไม่ซ้ำ เรียงตามใช้บ่อย
+  var freq = {};
+  db.transactions.forEach(function(t){
+    if(t.note && t.note.trim()){
+      var n = t.note.trim();
+      freq[n] = (freq[n]||0) + 1;
+    }
+  });
+  return Object.keys(freq).sort(function(a,b){ return freq[b]-freq[a]; });
+}
+
 function showNoteSuggestions(catId) {
+  // แสดง note ของหมวดนี้ตอนเลือกหมวด (ซ่อนก่อน ให้ autocomplete จัดการตอนพิมพ์)
   var box = document.getElementById('noteSuggestions');
   if(!box) return;
-  // หา note ล่าสุดของหมวดนี้ (ไม่ซ้ำ, เรียงจากใหม่ไปเก่า)
-  var seen = {};
-  var suggestions = [];
-  var txs = db.transactions.filter(function(t){ return t.category===catId && t.note && t.note.trim(); });
-  txs.sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
-  txs.forEach(function(t){
-    var n = t.note.trim();
-    if(!seen[n]){ seen[n]=true; suggestions.push(n); }
-  });
-  suggestions = suggestions.slice(0,6);
-  if(!suggestions.length){ box.innerHTML=''; return; }
-  box.innerHTML = suggestions.map(function(s){
-    return '<div style="padding:5px 12px;background:var(--accent-bg);color:var(--accent-dk);border-radius:20px;font-size:13px;cursor:pointer;border:1px solid var(--sand)" data-sug="'+s.replace(/"/g,'&quot;')+'">'+s+'</div>';
-  }).join('');
-  box.querySelectorAll('[data-sug]').forEach(function(el){
-    el.addEventListener('click', function(){
-      document.getElementById('txNote').value = el.dataset.sug;
+  box.innerHTML = ''; // ซ่อนก่อน รอให้พิมพ์
+  // เก็บ catId ไว้ใน dataset เพื่อใช้ใน autocomplete
+  box.dataset.catId = catId || '';
+}
+
+function initNoteAutocomplete() {
+  var inp = document.getElementById('txNote');
+  var box = document.getElementById('noteSuggestions');
+  if(!inp || !box) return;
+  inp.addEventListener('input', function(){
+    var q = inp.value.trim().toLowerCase();
+    if(!q){ box.innerHTML=''; return; }
+    // หา note ที่ match — ของหมวดนี้ก่อน แล้วค่อยหาทั้งหมด
+    var catId = box.dataset.catId || '';
+    var catNotes = [];
+    var otherNotes = [];
+    var seen = {};
+    // เรียงจากใหม่ไปเก่า
+    var sorted = db.transactions.slice().sort(function(a,b){ return new Date(b.created||b.date)-new Date(a.created||a.date); });
+    sorted.forEach(function(t){
+      if(!t.note || !t.note.trim()) return;
+      var n = t.note.trim();
+      if(seen[n.toLowerCase()]) return;
+      if(n.toLowerCase().indexOf(q) === -1) return;
+      seen[n.toLowerCase()] = true;
+      if(catId && t.category === catId) catNotes.push(n);
+      else otherNotes.push(n);
     });
+    var results = catNotes.concat(otherNotes).slice(0, 8);
+    if(!results.length){ box.innerHTML=''; return; }
+    box.innerHTML = results.map(function(s){
+      // highlight ส่วนที่ match
+      var idx = s.toLowerCase().indexOf(q);
+      var highlighted = s.slice(0,idx) + '<b style="color:var(--accent)">' + s.slice(idx, idx+q.length) + '</b>' + s.slice(idx+q.length);
+      return '<div style="padding:7px 14px;background:white;color:var(--text);border-radius:20px;font-size:14px;cursor:pointer;border:1.5px solid var(--sand);font-weight:500" data-sug="'+s.replace(/"/g,'&quot;')+'">' + highlighted + '</div>';
+    }).join('');
+    box.querySelectorAll('[data-sug]').forEach(function(el){
+      el.addEventListener('click', function(){
+        inp.value = el.dataset.sug;
+        box.innerHTML = '';
+      });
+    });
+  });
+  // กด Escape ปิด
+  inp.addEventListener('keydown', function(e){
+    if(e.key==='Escape') box.innerHTML='';
   });
 }
 
@@ -1277,6 +1320,26 @@ function openDebtDetail(id) {
     (d.note?'<div style="font-size:13px;color:var(--text2);margin-bottom:6px">📝 '+d.note+'</div>':'')+
     (d.due?'<div style="font-size:13px;color:var(--text2);margin-bottom:4px">📅 ครบกำหนด: '+new Date(d.due).toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'})+'</div>':'')+
     nextTxt;
+
+  // แสดง edit log
+  if(d.editLog && d.editLog.length) {
+    var logHtml = '<div style="margin-top:12px"><div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:6px">📝 ประวัติการแก้ไขยอด</div>';
+    d.editLog.slice().reverse().forEach(function(log){
+      var dt = new Date(log.date).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})+' '+new Date(log.date).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+      var isInc = log.diff > 0;
+      var diffTxt = isInc ? '+'+fmt(log.diff) : '−'+fmt(Math.abs(log.diff));
+      var diffColor = isInc ? 'var(--red-dk)' : 'var(--green-dk)';
+      logHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bg2)">'+
+        '<div>'+
+          '<div style="font-size:13px;color:var(--text)">'+fmt(log.oldAmt)+' → '+fmt(log.newAmt)+'</div>'+
+          '<div style="font-size:11px;color:var(--text3)">'+dt+'</div>'+
+        '</div>'+
+        '<div style="font-size:14px;font-weight:700;color:'+diffColor+'">'+diffTxt+'</div>'+
+      '</div>';
+    });
+    logHtml += '</div>';
+    document.getElementById('debtDetailContent').innerHTML += logHtml;
+  }
   document.getElementById('payAmt').value='';
   document.getElementById('editDebtAmt').value=rem>0?rem:'';
   document.getElementById('debtNextDate').value=d.nextDate||'';
@@ -1296,9 +1359,20 @@ function editDebtAmount() {
   var newAmt=parseFloat(document.getElementById('editDebtAmt').value);
   if(isNaN(newAmt)||newAmt<0){toast('ตัวเลขไม่ถูกต้อง');return;}
   var d=db.debts.find(function(x){return x.id===curDebtId;}); if(!d) return;
-  // ตั้ง amount ใหม่ให้เท่ากับ paid + ยอดที่แก้
+  var oldRemaining = d.amount - d.paid;
+  var diff = newAmt - oldRemaining; // บวก = เพิ่มขึ้น, ลบ = ลดลง
   d.amount = d.paid + newAmt;
-  if(d.amount<=d.paid){d.settled=true;toast('ชำระครบแล้ว 🎉');}else{toast('แก้ยอดหนี้แล้ว ✓');}
+  // บันทึก log
+  if(!d.editLog) d.editLog = [];
+  d.editLog.push({
+    date: new Date().toISOString(),
+    oldAmt: oldRemaining,
+    newAmt: newAmt,
+    diff: diff
+  });
+  var diffTxt = diff>0 ? 'เพิ่มขึ้น +'+fmt(diff) : 'ลดลง −'+fmt(Math.abs(diff));
+  if(d.amount<=d.paid){d.settled=true;toast('ชำระครบแล้ว 🎉');}
+  else{toast('แก้ยอดแล้ว · '+diffTxt);}
   saveDB(); closeModal('mDebtDetail'); renderDebts();
 }
 
