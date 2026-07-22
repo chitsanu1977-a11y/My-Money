@@ -1,5 +1,5 @@
 // เปลี่ยน VERSION ทุกครั้งที่อัพเดทแอป → บังคับให้ reload ทันที
-const VERSION = '13';
+const VERSION = '14';
 const CACHE = 'ptpr-v' + VERSION;
 const BASE = '/My-Money/';
 const ASSETS = [BASE, BASE + 'index.html', BASE + 'manifest.json'];
